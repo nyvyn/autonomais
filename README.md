@@ -1,2 +1,3 @@
-# autonomais
-Cohort provides an approachable way to define multiple, collaborative AI agents
+# Autonomais
+
+An approachable way to define multiple, collaborative AI agents
