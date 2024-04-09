@@ -2,12 +2,12 @@
 import * as fs from "node:fs";
 import * as yargs from "yargs";
 import { hideBin } from "yargs/helpers";
-import { enableVerboseLogging, runWorkflow } from "./index";
+import { enableVerboseLogging, parseWorkflow } from "./index";
 
 function run(path: string | number) {
     if (!path) console.error("No workflow path given");
     const contents = fs.readFileSync(path, "utf-8");
-    runWorkflow(contents);
+    parseWorkflow(contents);
 }
 
 async function main() {
