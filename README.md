@@ -1,6 +1,6 @@
 <div align="center">
 
-# Autonomais
+<h1>Autonomais</h1>
 
 **Effortlessly simple agent-based workflows!**
 
