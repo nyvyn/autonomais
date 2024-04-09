@@ -1,10 +1,10 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "moduleResolution": "bundler",
     "target": "esnext",
     "declaration": true,
     "outDir": "./dist",
+    "rootDir": "./src",
     "paths": {
       "@/*": [
         "./src/*"
