@@ -43,3 +43,7 @@ npm run demo
 This command will run the `src/cli.ts` script with the `examples/helloworld.yaml` workflow file. 
 You can also run any other workflow file by replacing `examples/helloworld.yaml` 
 with the path to your desired workflow file.
+
+## License
+
+Autonomais is open-sourced software licensed under the MIT license. For more information, please see the [LICENSE](LICENSE) file in this repository.
