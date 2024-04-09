@@ -34,7 +34,7 @@ describe("cli", () => {
     });
 
     it("should run weather example workflow", async () => {
-        await runCommand("./src/examples/weather.yml");
+        await runCommand("./examples/weather.yaml");
     });
 });
 
