@@ -13,6 +13,7 @@ using simple YAML configuration files. These workflows can include a variety of 
 Autonomais is built using a variety of modern technologies to ensure efficiency, reliability, and ease of use:
 
 - **TypeScript**: A typed superset of JavaScript that compiles to plain JavaScript, providing improved development experience with static type checking.
+- **LangGraph**: A library for creating and managing graph-based data structures, facilitating complex interactions between AI agents.
 - **Node.js**: A JavaScript runtime built on Chrome's V8 JavaScript engine, used for executing the code outside of a browser.
 - **Yargs**: A Node.js library for building command-line tools with powerful argument parsing.
 - **Jest**: A delightful JavaScript Testing Framework with a focus on simplicity, used for unit testing.
