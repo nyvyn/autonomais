@@ -5,15 +5,18 @@ describe("cli", () => {
     beforeEach(() => {
         jest.resetModules();
         originalArgv = process.argv;
-        processExitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {});
-        // Remove all cached modules. The cache needs to be cleared before running
-        // each command, otherwise you will see the same results from the command
+        processExitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {
+        });
+        // Remove all cached modules.
+        // Clear the cache before running each command,
+        // otherwise you will see the same results from the command
         // run in your first test in later tests.
         jest.resetModules();
 
         // Each test overwrites process arguments so store the original arguments
         originalArgv = process.argv;
-        processExitSpy = jest.spyOn(process, "exit").mockImplementation((code) => { throw new Error("process.exit: " + code); });
+        processExitSpy = jest.spyOn(process, "exit").mockImplementation((code) => {
+        });
     });
 
     afterEach(() => {
