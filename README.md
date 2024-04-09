@@ -1,10 +1,12 @@
 # Autonomais
 
-An approachable way to define multiple, collaborative AI agents
+Effortlessly simple agent-based workflows!
 
 ## What is Autonomais?
 
-Autonomais is a framework designed to facilitate the creation and management of AI agents that can work collaboratively on complex tasks. It allows users to define workflows for agents using simple YAML configuration files. These workflows can include a variety of tasks such as processing data, interacting with APIs, and communicating with other agents. The goal of Autonomais is to make it easier to build systems where multiple AI agents can work together to achieve goals that would be difficult for a single agent to accomplish alone.
+Autonomais is a framework designed to facilitate the creation and management of AI agents 
+that can work collaboratively on complex tasks. It allows users to define workflows for agents 
+using simple YAML configuration files. These workflows can include a variety of tasks such as processing data, interacting with APIs, and communicating with other agents. The goal of Autonomais is to make it easier to build systems where multiple AI agents can work together to achieve goals that would be difficult for a single agent to accomplish alone.
 
 ## Running the Product
 
