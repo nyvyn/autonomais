@@ -1,11 +1,11 @@
 #!/usr/bin/env node
-const yargs = require("yargs/yargs")
-const {hideBin} = require("yargs/helpers")
+const yargs = require("yargs/yargs");
+const {hideBin} = require("yargs/helpers");
 
 yargs(hideBin(process.argv))
     .command("$0", "The default command", () => {
     }, (argv) => {
-        console.log("this command will be run by default")
+        parseWorkflow(argv.$0);
     })
     .option("verbose", {
         alias: "v",
