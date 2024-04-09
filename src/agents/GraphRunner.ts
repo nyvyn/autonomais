@@ -21,7 +21,7 @@ export class GraphRunner extends Runnable<
 
     private readonly graph: Pregel;
 
-    private constructor(config: GraphRunnerConfig) {
+    public constructor(config: GraphRunnerConfig) {
         super(config);
         this.graph = config.graph;
     }
