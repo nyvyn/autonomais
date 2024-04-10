@@ -82,12 +82,12 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
         } else {
             const prompt = PromptTemplate.fromTemplate(`
                 You are a helpful AI assistant.
-                This is the conversation so far: \"\"\"{context}\"\"\".
-                Your instructions are: \"\"\"{objective}\"\"\".
+                This is the conversation so far: \"\"\"{messages}\"\"\".
+                Your instructions are: \"\"\"{instructions}\"\"\".
             `);
             const completion = await prompt.pipe(model).invoke({
-                context: JSON.stringify(state.messages),
-                objective: node.instructions!,
+                messages: JSON.stringify(state.messages!),
+                instructions: node.instructions!,
             }, {
                 ...config,
                 runName: `Node Agent - ${node.name}`,
@@ -119,14 +119,14 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
 
         const prompt = PromptTemplate.fromTemplate(`
             You have been called to make a decision based on the context of the conversation.
-            This is the conversation so far: \"\"\"{context}\"\"\".
-            Your instructions are: \"\"\"{objective}\"\"\".
+            This is the conversation so far: \"\"\"{messages}\"\"\".
+            Your instructions are: \"\"\"{instructions}\"\"\".
             Based on the previous instructions and message history, reply with one (and only one) of the following: 
             ${conditionalAgents.join(", ")}.
         `);
         const completion = await prompt.pipe(model).invoke({
-            context: JSON.stringify(state.messages),
-            objective: node.instructions!,
+            messages: JSON.stringify(state.messages),
+            instructions: node.instructions!,
         }, {
             ...config,
             runName: `Node Conditional - ${node.name}`,
