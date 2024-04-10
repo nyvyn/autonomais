@@ -18,6 +18,7 @@ import { enableVerboseLogging, parseWorkflow, runWorkflow } from "./index";
 async function run(path: string | number, prompt?: string): Promise<void> {
     console.log(`Hello, ${process.env.USER}!`);
     console.log(`You're running Autonomais in ${process.cwd()}.`);
+    console.log("You can exit the interactive session by typing '/quit' or '/exit'.");
 
     if (!path) {
         console.error("No workflow path given");
@@ -51,10 +52,6 @@ async function run(path: string | number, prompt?: string): Promise<void> {
             }
         },
     });
-
-    console.log("You can exit the interactive session by typing '/quit' or '/exit'.");
-
-    replServer.writer(prompt);
 
     replServer.on("exit", () => {
         console.log("Interactive session ended.");
