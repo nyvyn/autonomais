@@ -48,7 +48,7 @@ async function run(path: string | number, prompt?: string): Promise<void> {
             }
             try {
                 const completion = await runWorkflow(nodes, trimmedCmd);
-                callback(null, `AI: ${completion}`);
+                callback(null, colorizeGreen(`AI: ${completion}`));
             } catch (error) {
                 callback(error, "Error running workflow.");
             }
@@ -59,6 +59,10 @@ async function run(path: string | number, prompt?: string): Promise<void> {
         console.log("Interactive session ended.");
         process.exit();
     });
+}
+
+function colorizeGreen(text) {
+    return `\x1b[32m${text}\x1b[0m`;
 }
 
 
