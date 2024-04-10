@@ -4,6 +4,9 @@
   "description": "An approachable way to define multiple, collaborative AI agents",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "engines": {
+    "node": "20.x"
+  },
   "files": [
     "/dist"
   ],
@@ -17,7 +20,6 @@
     "@langchain/core": "^0.1.55",
     "@langchain/langgraph": "0.0.12",
     "@langchain/openai": "^0.0.26",
-    "json5": "^2.2.3",
     "yaml": "^2.4.1",
     "yargs": "^17.7.2"
   },

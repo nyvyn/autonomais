@@ -3,4 +3,4 @@ export const enum MessageType {
     UserMessage = "usermessage"
 }
 
-export type RunnerContext = Readonly<string | [string, MessageType.ApiMessage | MessageType.UserMessage] | [string, string][]>
+export type MessageContext = Readonly<string | [string, MessageType.ApiMessage | MessageType.UserMessage] | [string, string][]>

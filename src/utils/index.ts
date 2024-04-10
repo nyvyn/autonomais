@@ -1,2 +1,2 @@
-export { enableVerboseLogging, log } from "./logger";
+export { enableVerboseLogging, logger } from "./logger";
 export { parseWorkflow, runWorkflow } from "./workflow";

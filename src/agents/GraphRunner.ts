@@ -1,36 +1,44 @@
-import { GraphNode } from "@/types";
-import { RunnerContext } from "@/types/MessageType";
-import { log } from "@/utils";
+import { GuardChain } from "@/agents/GuardChain";
+import { RunnableChain, RunnableChainConfig } from "@/agents/RunnableChain";
+import { ToolChain } from "@/agents/ToolChain";
+import { GraphNode, MessageContext } from "@/types";
+import { logger } from "@/utils";
 import { convertContextToLangChainMessages } from "@/utils/convertContext";
-import { parseJson } from "@/utils/parseJson";
-import { END_NODE } from "@/utils/variables";
+import { END_NODE, GPT4_TEXT } from "@/utils/variables";
+import { CallbackManagerForChainRun } from "@langchain/core/callbacks/manager";
 import { BaseLanguageModel } from "@langchain/core/dist/language_models/base";
-import { AIMessage, BaseMessage, HumanMessage } from "@langchain/core/messages";
+import { AIMessage, BaseMessage, HumanMessage, SystemMessage, ToolMessage } from "@langchain/core/messages";
 import { PromptTemplate } from "@langchain/core/prompts";
-import { Runnable, RunnableConfig, RunnableLambda } from "@langchain/core/runnables";
+import { RunnableConfig, RunnableLambda } from "@langchain/core/runnables";
 import { StructuredTool } from "@langchain/core/tools";
 import { END, StateGraph } from "@langchain/langgraph";
-import { ToolExecutor } from "@langchain/langgraph/prebuilt";
 import { Pregel } from "@langchain/langgraph/pregel";
+import OpenAI from "openai";
+import { ChatCompletionMessageParam } from "openai/resources";
 
-type AgentState = {
+export type AgentState = {
     messages: Array<BaseMessage>;
-    viewstate?: Record<any, any>
 };
 
-export class GraphRunner extends Runnable<
-    RunnerContext,
-    string
-> {
-    lc_namespace: ["Graph Runner"];
+export interface GraphControllerConfig extends RunnableChainConfig {
+    graph: Pregel;
+}
+
+export type GraphRunnerInput = MessageContext;
+export type GraphRunnerOutput = string;
+
+export class GraphRunner extends RunnableChain<GraphRunnerInput, GraphRunnerOutput> {
+    public declare lc_namespace: ["Graph Runner"];
 
     private readonly graph: Pregel;
 
-    public constructor({graph}: Readonly<{
-        graph: Pregel;
-    }>) {
-        super();
-        this.graph = graph;
+    constructor(input: GraphControllerConfig) {
+        super({
+            ...input,
+            runName: "Graph Controller",
+        });
+
+        this.graph = input.graph;
     }
 
     public static async make({model, nodes, tools}: Readonly<{
@@ -49,44 +57,72 @@ export class GraphRunner extends Runnable<
     }
 
     private static callAgent = async (
-        state: AgentState, node: GraphNode, tools: StructuredTool[], config?: RunnableConfig
+        state: AgentState, node: GraphNode, tools: StructuredTool[], model: BaseLanguageModel, config?: RunnableConfig
     ): Promise<AgentState> => {
         // Signals calling a new agent,
-        log(`Calling agent: ${node.name}`);
+        logger(`Calling agent: ${node.name}`);
 
-        state.messages.push(new AIMessage({
-            content: `"This is the current state: \`\`\`json${JSON.stringify(state.viewstate)}\`\`\`.`,
-        }));
-        if (node.instructions) state.messages.push(new HumanMessage({
-            content: node.instructions,
-        }));
-
-        const toolChain = new ToolExecutor({
-            tools
+        const converted: ChatCompletionMessageParam[] = state.messages.map((message) => {
+            const content = typeof message.content === "string" ? message.content : JSON.stringify(message.content);
+            if (message instanceof AIMessage) {
+                return {content, role: "assistant"};
+            } else if (message instanceof HumanMessage) {
+                return {content, role: "user"};
+            } else if (message instanceof SystemMessage) {
+                return {content, role: "system"};
+            } else if (message instanceof ToolMessage) {
+                return {content, role: "tool", tool_call_id: message.tool_call_id};
+            } else {
+                throw new Error("Unknown message type.");
+            }
         });
 
-        const results = await toolChain.invoke({
-            messages: state.messages
-        }, {
-            ...config,
-            runName: `Graph Runner - ${node.name}`,
-        });
+        if (node.instructions) converted.push({content: node.instructions, role: "user"});
 
-        // Send Data to the Agent View
-        const matched = results.completion?.match(/(```json\s+?{.*}\s+?```)/s);
-        if (matched && matched[1]) {
-            const json = parseJson(matched[1]);
-            state.viewstate = json;
-            log(json);
+        let message: BaseMessage;
+        if (tools.length > 0) {
+            const openAiApiKey = process.env.OPENAI_API_KEY;
+            const openai = new OpenAI({apiKey: openAiApiKey});
+
+            const runner = new ToolChain({
+                openai: openai,
+                model: GPT4_TEXT,
+                tools,
+            });
+            const results = await runner.invoke({
+                messages: converted
+            }, {
+                ...config,
+                runName: `Tool Chain - ${node.name}`,
+            });
+
+            message = results.completion ? new AIMessage(results.completion) : new AIMessage("No response from AI.");
+
+        } else {
+            const prompt = PromptTemplate.fromTemplate(`
+                You are a helpful AI assistant.
+                This is the conversation so far: \"\"\"{context}\"\"\".
+                Your instructions are: \"\"\"{objective}\"\"\".
+            `);
+            const runner = new GuardChain<{ context: string, objective: string }, string>({
+                model,
+                prompt,
+            });
+            const results = await runner.invoke({
+                context: JSON.stringify(state.messages),
+                objective: node.instructions!,
+            }, {
+                ...config,
+                runName: `Guard Chain - ${node.name}`,
+            });
+
+            message = results ? new AIMessage(results) : new AIMessage("No response from AI.");
         }
 
-        const message = results.completion ? new AIMessage(results.completion) : new AIMessage("No response from AI.");
-
-        log(message.content as string);
+        logger(message.content as string);
 
         return {
             messages: [message],
-            viewstate: state.viewstate,
         };
     };
 
@@ -94,7 +130,7 @@ export class GraphRunner extends Runnable<
         state: AgentState, node: GraphNode, nodes: GraphNode[], model: BaseLanguageModel, config?: RunnableConfig
     ): Promise<AgentState> => {
         // Signals that a new agent will be called,
-        log(`Calling conditional: ${node.name}`);
+        logger(`Calling conditional: ${node.name}`);
 
         const conditionalAgents = [];
         nodes.forEach((test: GraphNode) => {
@@ -107,16 +143,17 @@ export class GraphRunner extends Runnable<
         const prompt = PromptTemplate.fromTemplate(`
             You have been called to make a decision based on the context of the conversation.
             This is the conversation so far: \"\"\"{context}\"\"\".
-            This is the current state: \`\`\`json{state}\`\`\`.
             Your instructions are: \"\"\"{objective}\"\"\".
             Based on the previous instructions and message history, reply with one (and only one) of the following: 
             ${conditionalAgents.join(", ")}.
         `);
-
-        const completion = await prompt.bind(model).invoke({
+        const conditionalChain = new GuardChain<{ context: string, objective: string }, string>({
+            model,
+            prompt
+        });
+        const completion = await conditionalChain.invoke({
             context: JSON.stringify(state.messages),
             objective: node.instructions!,
-            state: JSON.stringify(state.viewstate),
         }, {
             ...config,
             runName: `Graph Conditional - ${node.name}`,
@@ -124,11 +161,10 @@ export class GraphRunner extends Runnable<
 
         const message = completion ? new AIMessage("Selected: " + completion) : new AIMessage("No response from AI.");
 
-        log(message.content as string);
+        logger(message.content as string);
 
         return {
             messages: [message],
-            viewstate: state.viewstate,
         };
     };
 
@@ -156,11 +192,11 @@ export class GraphRunner extends Runnable<
         nodes: GraphNode[],
         tools: StructuredTool[],
     ): Promise<Pregel> {
-        nodes.forEach((agent) => {
-            if (!agent.name) {
-                throw new Error("Graph misconfigured. NOde name is required.");
+        nodes.forEach((node) => {
+            if (!node.name) {
+                throw new Error("Graph misconfigured. Node name is required.");
             }
-            if (!agent.instructions) {
+            if (!node.instructions) {
                 throw new Error("Graph misconfigured. Node instructions are required.");
             }
         });
@@ -195,7 +231,7 @@ export class GraphRunner extends Runnable<
                 workflow.addNode(
                     node.name!,
                     RunnableLambda.from(
-                        (state: AgentState, config) => GraphRunner.callAgent(state, node, tools, config),
+                        (state: AgentState, config) => GraphRunner.callAgent(state, node, tools, model, config),
                     )
                 );
             }
@@ -255,16 +291,16 @@ export class GraphRunner extends Runnable<
         return workflow.compile();
     }
 
-    public async invoke(input: RunnerContext, options?: Partial<RunnableConfig> | undefined): Promise<any> {
-        const messages = convertContextToLangChainMessages(input);
+    public async run(input: GraphRunnerInput, runManager?: CallbackManagerForChainRun): Promise<GraphRunnerOutput> {
+        const converted = convertContextToLangChainMessages(input);
 
         const output: {
             messages: BaseMessage[]
         } = await this.graph.invoke({
-            messages,
+            messages: converted.messages,
         }, {
             runName: "Graph Runner - Graph Run",
-            ...options
+            callbacks: runManager?.getChild(),
         });
 
         if (!output) return "Invalid response from AI.";

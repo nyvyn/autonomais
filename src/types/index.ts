@@ -1,2 +1,2 @@
 export { GraphNode } from "./GraphNode";
-export { MessageType, RunnerContext } from "./MessageType";
+export { MessageContext, MessageType } from "./MessageType";

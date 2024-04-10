@@ -1,13 +1,20 @@
 #!/usr/bin/env node
+
 import * as fs from "node:fs";
 import * as yargs from "yargs";
 import { hideBin } from "yargs/helpers";
-import { enableVerboseLogging, parseWorkflow } from "./index";
+import { enableVerboseLogging, logger, parseWorkflow, runWorkflow } from "./index";
 
-function run(path: string | number) {
+async function run(path: string | number) {
     if (!path) console.error("No workflow path given");
     const contents = fs.readFileSync(path, "utf-8");
-    parseWorkflow(contents);
+    const nodes = parseWorkflow(contents);
+    logger(nodes);
+    const completion = await runWorkflow(nodes);
+
+    console.log(completion);
+    console.log();
+    console.log("Workflow complete");
 }
 
 async function main() {
