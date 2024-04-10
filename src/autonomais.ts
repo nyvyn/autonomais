@@ -34,7 +34,7 @@ async function run(path: string | number, prompt?: string): Promise<void> {
 
     const completion = await runWorkflow(nodes, prompt);
     console.log(`AI: ${completion}`);
-    console.log("Enjoy your interactive AI session. Type your commands below:");
+    console.log("────────────────────────────────────────────────────────────────────────");
 
     const replServer = repl.start({
         prompt: "You: ",
