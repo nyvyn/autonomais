@@ -15,6 +15,6 @@ describe("parse workflow", () => {
         const path = "./examples/helloworld.yaml";
         const contents = fs.readFileSync(path, "utf-8");
         const nodes = parseWorkflow(contents);
-        runWorkflow(nodes);
+        runWorkflow(nodes, []);
     });
 });
