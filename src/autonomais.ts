@@ -19,6 +19,7 @@ async function run(path: string | number, prompt?: string): Promise<void> {
     console.log(`Hello, ${process.env.USER}!`);
     console.log(`You're running Autonomais in ${process.cwd()}.`);
     console.log("You can exit the interactive session by typing '/quit' or '/exit'.");
+    console.log("────────────────────────────────────────────────────────────────────────");
 
     if (!path) {
         console.error("No workflow path given");
@@ -34,7 +35,6 @@ async function run(path: string | number, prompt?: string): Promise<void> {
 
     const completion = await runWorkflow(nodes, prompt);
     console.log(`AI: ${completion}`);
-    console.log("────────────────────────────────────────────────────────────────────────");
 
     const replServer = repl.start({
         prompt: "You: ",
