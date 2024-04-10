@@ -3,6 +3,7 @@ import { GraphNode } from "@/types/GraphNode";
 import { logger } from "@/utils/logger";
 import { GPT4_TEXT } from "@/utils/variables";
 import { BingSerpAPI } from "@langchain/community/tools/bingserpapi";
+import { BaseMessage } from "@langchain/core/messages";
 import { StructuredTool } from "@langchain/core/tools";
 import { ChatOpenAI } from "@langchain/openai";
 import * as process from "node:process";
@@ -40,13 +41,13 @@ export function parseWorkflow(source: string): GraphNode[] {
  *  Runs a workflow using a set of graph nodes and a prompt.
  *
  *  @param {GraphNode[]} nodes - An array of graph nodes representing the workflow.
- *  @param {string} prompt - The prompt for the workflow.
+ *  @param {BaseMessage[]} messages - The current message context of the workflow
  *
  *  @throws {Error} - Throws an error if the OpenAI API Key is not set.
  *
  *  @returns {Promise<string>} - Returns a Promise that resolves to the result of the workflow execution.
  */
-export async function runWorkflow(nodes: GraphNode[], prompt?: string): Promise<string> {
+export async function runWorkflow(nodes: GraphNode[], messages: BaseMessage[]): Promise<string> {
     const openAiApiKey = process.env.OPENAI_API_KEY;
     if (!Boolean(openAiApiKey)) {
         throw new Error("OpenAI API Key not set.");
@@ -63,7 +64,7 @@ export async function runWorkflow(nodes: GraphNode[], prompt?: string): Promise<
 
     const tools: StructuredTool[] = [];
 
-    // If Bing API key exists, then add BingSerp tool
+    // If the Bing API key exists, then add BingSerp tool
     if (Boolean(process.env.BING_API_KEY)) {
         tools.push(new BingSerpAPI(process.env.BING_API_KEY));
     }
@@ -74,5 +75,7 @@ export async function runWorkflow(nodes: GraphNode[], prompt?: string): Promise<
         tools,
     });
 
-    return await runner.invoke(prompt);
+    return await runner.invoke({
+        messages,
+    });
 }

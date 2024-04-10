@@ -1,6 +1,5 @@
-import { GraphNode, MessageContext } from "@/types";
+import { GraphNode } from "@/types";
 import { logger } from "@/utils";
-import { convertContextToLangChainMessages } from "@/utils/convertContext";
 import { END_NODE } from "@/utils/variables";
 import { BaseLanguageModel } from "@langchain/core/dist/language_models/base";
 import { AIMessage, BaseMessage, HumanMessage } from "@langchain/core/messages";
@@ -12,14 +11,16 @@ import { createFunctionCallingExecutor } from "@langchain/langgraph/prebuilt";
 import { Pregel } from "@langchain/langgraph/pregel";
 
 export type AgentState = {
-    messages: Array<BaseMessage>;
+    messages: BaseMessage[];
 };
 
 export interface GraphRunnerConfig extends RunnableConfig {
     graph: Pregel;
 }
 
-export type GraphRunnerInput = MessageContext;
+export type GraphRunnerInput = {
+    messages: BaseMessage[];
+};
 export type GraphRunnerOutput = string;
 
 export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
@@ -265,12 +266,11 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
     }
 
     public async invoke(input: GraphRunnerInput, options?: RunnableConfig): Promise<GraphRunnerOutput> {
-        const converted = convertContextToLangChainMessages(input);
 
         const output: {
             messages: BaseMessage[]
         } = await this.graph.invoke({
-            messages: converted.messages,
+            messages: input.messages,
         }, {
             ...options,
             runName: "Graph Runner - Graph Run",
