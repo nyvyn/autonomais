@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 
 import * as fs from "node:fs";
+import * as repl from "node:repl";
 import * as yargs from "yargs";
 import { hideBin } from "yargs/helpers";
-import { enableVerboseLogging, logger, parseWorkflow, runWorkflow } from "./index";
+import { enableVerboseLogging, parseWorkflow, runWorkflow } from "./index";
 
 
 /**
@@ -14,36 +15,44 @@ import { enableVerboseLogging, logger, parseWorkflow, runWorkflow } from "./inde
  *
  * @returns {Promise<void>} - A promise that resolves when the workflow is complete.
  */
-async function run(path: string | number): Promise<void> {
+async function run(path: string | number, prompt?: string): Promise<void> {
+    console.log(`Hello, ${process.env.USER}!`);
+    console.log(`You're running Autonomais in ${process.cwd()}.`);
+
     if (!path) {
         console.error("No workflow path given");
         return;
     }
+
     const contents = fs.readFileSync(path.toString(), "utf-8");
     const nodes = parseWorkflow(contents);
 
+    console.log(`Running workflow ${path}.`);
+    console.log(prompt ? `Using prompt: ${prompt}.` : "No prompt provided.");
+    console.log();
+
+    const completion = await runWorkflow(nodes, prompt);
+    console.log(`AI: ${completion}`);
+
     const replServer = repl.start({
-        prompt: "Enter your prompt: ",
+        prompt: "You: ",
+        useColors: true,
         eval: async (cmd, context, filename, callback) => {
             try {
                 const completion = await runWorkflow(nodes, cmd);
-                console.log("AI: " + completion);
-                callback(null, completion);
+                callback(null, `AI: ${completion}`);
             } catch (error) {
-                console.error("Error running workflow:", error);
-                callback(error);
+                callback(error, "Error running workflow.");
             }
         },
     });
 
-    replServer.on('exit', () => {
-        console.log('REPL session ended. Workflow complete.');
+    replServer.writer(prompt);
+
+    replServer.on("exit", () => {
+        console.log("Interactive session ended.");
         process.exit();
     });
-
-    console.log("AI: " + completion);
-    console.log();
-    console.log("Workflow complete");
 }
 
 
@@ -64,7 +73,8 @@ async function main(): Promise<void> {
         command: ["source", "$0"],
         describe: "autonomais.ts <source> [prompt]",
         handler: async args => {
-            await run(args._[0]);
+            if (args.verbose) enableVerboseLogging();
+            await run(args._[0], args.prompt);
         }
     }).option("prompt", {
         alias: "p",
@@ -75,8 +85,6 @@ async function main(): Promise<void> {
         type: "boolean",
         description: "Run with verbose logging"
     }).parse();
-
-    if (argv.verbose) enableVerboseLogging();
 }
 
 main().catch((error) => {
