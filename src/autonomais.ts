@@ -61,7 +61,7 @@ async function run(path: string | number, prompt?: string): Promise<void> {
     });
 }
 
-function colorizeGreen(text) {
+function colorizeGreen(text: string) {
     return `\x1b[32m${text}\x1b[0m`;
 }
 
@@ -75,7 +75,7 @@ function colorizeGreen(text) {
  * @returns {Promise<void>}
  */
 async function main(): Promise<void> {
-    const argv = await yargs(
+    await yargs(
         hideBin(process.argv)
     ).usage(
         "Usage: $0 <workflow> [prompt]"
