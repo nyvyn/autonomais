@@ -11,12 +11,14 @@
     "/dist"
   ],
   "scripts": {
+    "dev": "ts-node src/autonomais.ts",
     "build": "tsc",
     "demo": "ts-node src/autonomais.ts ./examples/helloworld.yaml",
     "test": "jest",
     "update scripts": "npx npm-check-updates -u"
   },
   "dependencies": {
+    "@langchain/community": "^0.0.46",
     "@langchain/core": "^0.1.55",
     "@langchain/langgraph": "0.0.12",
     "@langchain/openai": "^0.0.26",

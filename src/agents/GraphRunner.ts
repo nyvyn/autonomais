@@ -3,7 +3,7 @@ import { logger } from "@/utils";
 import { convertContextToLangChainMessages } from "@/utils/convertContext";
 import { END_NODE } from "@/utils/variables";
 import { BaseLanguageModel } from "@langchain/core/dist/language_models/base";
-import { AIMessage, BaseMessage } from "@langchain/core/messages";
+import { AIMessage, BaseMessage, HumanMessage } from "@langchain/core/messages";
 import { PromptTemplate } from "@langchain/core/prompts";
 import { Runnable, RunnableConfig, RunnableLambda } from "@langchain/core/runnables";
 import { StructuredTool } from "@langchain/core/tools";
@@ -64,14 +64,20 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
                 tools,
             });
 
-            const results = await toolChain.invoke({
-                messages: state.messages,
+            const messages: BaseMessage[] = [];
+            messages.push(new HumanMessage({content: node.instructions!}));
+            messages.push(...state.messages);
+
+            const completion = await toolChain.invoke({
+                messages,
             }, {
                 ...config,
                 runName: `Tool Agent - ${node.name}`,
             });
 
-            message = results.completion ? new AIMessage(results.completion) : new AIMessage("No response from AI.");
+            const lastMessage = completion.messages[completion.messages.length - 1];
+
+            message = lastMessage ? new AIMessage(lastMessage.content) : new AIMessage("No response from AI.");
 
         } else {
             const prompt = PromptTemplate.fromTemplate(`
@@ -109,7 +115,7 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
                 conditionalAgents.push(test.name);
             }
         });
-        if (node.isTerminal) conditionalAgents.push(END_NODE);
+        if (node.isExit) conditionalAgents.push(END_NODE);
 
         const prompt = PromptTemplate.fromTemplate(`
             You have been called to make a decision based on the context of the conversation.
@@ -118,7 +124,7 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
             Based on the previous instructions and message history, reply with one (and only one) of the following: 
             ${conditionalAgents.join(", ")}.
         `);
-        const completion = prompt.bind(model).invoke({
+        const completion = await prompt.pipe(model).invoke({
             context: JSON.stringify(state.messages),
             objective: node.instructions!,
         }, {
@@ -126,7 +132,7 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
             runName: `Node Conditional - ${node.name}`,
         });
 
-        const message = completion ? new AIMessage("Selected: " + completion) : new AIMessage("No response from AI.");
+        const message = completion.content ? new AIMessage("Selected: " + completion.content) : new AIMessage("No response from AI.");
 
         logger(message.content as string);
 
@@ -219,7 +225,7 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
             if (node.isConditional) {
                 let mapping: Record<string, string> = {};
 
-                if (node.isTerminal) {
+                if (node.isExit) {
                     mapping = {
                         ...mapping,
                         [END_NODE]: END,
@@ -246,7 +252,7 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
 
                 // If not the last node, add the edge to the next node
                 if (index < nodes.length - 1) {
-                    if (node.isTerminal) {
+                    if (node.isExit) {
                         workflow.addEdge(node.name!, END);
                     } else {
                         workflow.addEdge(node.name!, nodes[index + 1].name!);
