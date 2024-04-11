@@ -11,6 +11,24 @@ import { ChatOpenAI } from "@langchain/openai";
 import * as process from "node:process";
 import * as YAML from "yaml";
 
+function makeTool(
+    ToolConstructor: any,
+    envVariable?: string,
+    toolOptions = {}
+): StructuredTool {
+    let envOptions = {};
+    if (envVariable) {
+        const envVarValue = process.env[envVariable];
+        if (!Boolean(envVarValue)) {
+            throw new Error(`${envVariable} not set.`);
+        }
+        envOptions = {
+            apiKey: envVarValue
+        };
+    }
+    return new ToolConstructor({...envOptions, ...toolOptions});
+}
+
 /**
  *  Parses a workflow from a source string and returns an array of GraphNode objects.
  *
@@ -25,19 +43,46 @@ export function parseWorkflow(source: string): GraphNode[] {
 
     Object.keys(workflow).map((key) => {
         const prop = workflow[key];
+
+        const tools: StructuredTool[] = prop.tools?.map((toolName: string) => {
+            switch (toolName.toLowerCase()) {
+                case "bing-search":
+                    return makeTool(
+                        BingSerpAPI,
+                        "BING_SEARCH_API_KEY",
+                    );
+                case "calculator":
+                    return makeTool(
+                        Calculator
+                    );
+                case "searxng-search":
+                    return makeTool(
+                        SearxngSearch,
+                        "SEARXNG_SEARCH_BASE_URL",
+                        {
+                            params: {
+                                format: "json",
+                                engines: "google",
+                            },
+                        }
+                    );
+                default:
+                    throw new Error(`Unknown tool: ${toolName}`);
+            }
+        }).filter(tool => tool !== null);
+
         const node: GraphNode = {
             name: key,
             instructions: prop.instructions,
             isConditional: prop.conditional || false,
             isExit: prop.exit || false,
-            tools: prop.tools || [],
+            tools: tools || [],
         };
         nodes.push(node);
     });
 
     return nodes;
 }
-
 
 /**
  *  Runs a workflow using a set of graph nodes and a prompt.
@@ -64,64 +109,9 @@ export async function runWorkflow(nodes: GraphNode[], messages: BaseMessage[]): 
         maxRetries: 2,
     });
 
-    // Loop through the graph nodes collecting the unique tools
-    const requestedTools = new Set<string>();
-    nodes.forEach(node => {
-        node.tools && node.tools.forEach(toolName => {
-            requestedTools.add(toolName);
-        });
-    });
-
-    const makeTool = (
-        ToolConstructor: any,
-        envVariable?: string,
-        toolOptions = {}
-    ): StructuredTool => {
-        let envOptions = {};
-        if (envVariable) {
-            const envVarValue = process.env[envVariable];
-            if (!Boolean(envVarValue)) {
-                throw new Error(`${envVariable} not set.`);
-            }
-            envOptions = {
-                apiKey: envVarValue
-            };
-        }
-        return new ToolConstructor({...envOptions, ...toolOptions});
-    };
-
-    // Loop through the tools by string name
-    const tools: StructuredTool[] = Array.from(requestedTools).map(toolName => {
-        switch (toolName.toLowerCase()) {
-            case "bing-search":
-                return makeTool(
-                    BingSerpAPI,
-                    "BING_SEARCH_API_KEY",
-                );
-            case "calculator":
-                return makeTool(
-                    Calculator
-                );
-            case "searxng-search":
-                return makeTool(
-                    SearxngSearch,
-                    "SEARXNG_SEARCH_BASE_URL",
-                    {
-                        params: {
-                            format: "json",
-                            engines: "google",
-                        },
-                    }
-                );
-            default:
-                throw new Error(`Unknown tool: ${toolName}`);
-        }
-    }).filter(tool => tool !== null);
-
     const runner = await GraphRunner.make({
         model,
         nodes,
-        tools,
     });
 
     return await runner.invoke({
