@@ -18,10 +18,10 @@
     "update scripts": "npx npm-check-updates -u"
   },
   "dependencies": {
-    "@langchain/community": "^0.0.46",
-    "@langchain/core": "^0.1.55",
+    "@langchain/community": "^0.0.47",
+    "@langchain/core": "^0.1.57",
     "@langchain/langgraph": "0.0.12",
-    "@langchain/openai": "^0.0.26",
+    "@langchain/openai": "^0.0.28",
     "yaml": "^2.4.1",
     "yargs": "^17.7.2"
   },
