@@ -3,4 +3,5 @@ export type GraphNode = {
     instructions: string;
     isConditional?: boolean;
     isExit?: boolean;
+    tools?: string[];
 }

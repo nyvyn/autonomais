@@ -3,12 +3,13 @@ import { GraphNode } from "@/types/GraphNode";
 import { logger } from "@/utils/logger";
 import { GPT4_TEXT } from "@/utils/variables";
 import { BingSerpAPI } from "@langchain/community/tools/bingserpapi";
+import { Calculator } from "@langchain/community/tools/calculator";
+import { SearxngSearch } from "@langchain/community/tools/searxng_search";
 import { BaseMessage } from "@langchain/core/messages";
 import { StructuredTool } from "@langchain/core/tools";
 import { ChatOpenAI } from "@langchain/openai";
 import * as process from "node:process";
 import * as YAML from "yaml";
-
 
 /**
  *  Parses a workflow from a source string and returns an array of GraphNode objects.
@@ -29,6 +30,7 @@ export function parseWorkflow(source: string): GraphNode[] {
             instructions: prop.instructions,
             isConditional: prop.conditional || false,
             isExit: prop.exit || false,
+            tools: prop.tools || [],
         };
         nodes.push(node);
     });
@@ -62,20 +64,58 @@ export async function runWorkflow(nodes: GraphNode[], messages: BaseMessage[]): 
         maxRetries: 2,
     });
 
-    const toolNames = new Set<string>();
-
     // Loop through the graph nodes collecting the unique tools
+    const requestedTools = new Set<string>();
     nodes.forEach(node => {
-        node.tools.forEach(tool => {
-            toolNames.add(tool.name);
+        node.tools && node.tools.forEach(toolName => {
+            requestedTools.add(toolName);
         });
     });
 
-    // Loop through each of the tools by string name, stub out a /todo
-    const tools: StructuredTool[] = Array.from(toolNames).map(toolName => {
-        // TODO: Implement the creation of tools based on the toolName
-        logger(`Stub for tool creation: ${toolName}`);
-        return null; // Placeholder for actual tool creation
+    const makeTool = (
+        ToolConstructor: any,
+        envVariable?: string,
+        toolOptions = {}
+    ): StructuredTool => {
+        let envOptions = {};
+        if (envVariable) {
+            const envVarValue = process.env[envVariable];
+            if (!Boolean(envVarValue)) {
+                throw new Error(`${envVariable} not set.`);
+            }
+            envOptions = {
+                apiKey: envVarValue
+            };
+        }
+        return new ToolConstructor({...envOptions, ...toolOptions});
+    };
+
+    // Loop through the tools by string name
+    const tools: StructuredTool[] = Array.from(requestedTools).map(toolName => {
+        switch (toolName.toLowerCase()) {
+            case "bing-search":
+                return makeTool(
+                    BingSerpAPI,
+                    "BING_SEARCH_API_KEY",
+                );
+            case "calculator":
+                return makeTool(
+                    Calculator
+                );
+            case "searxng-search":
+                return makeTool(
+                    SearxngSearch,
+                    "SEARXNG_SEARCH_BASE_URL",
+                    {
+                        params: {
+                            format: "json",
+                            engines: "google",
+                        },
+                    }
+                );
+            default:
+                throw new Error(`Unknown tool: ${toolName}`);
+        }
     }).filter(tool => tool !== null);
 
     const runner = await GraphRunner.make({
