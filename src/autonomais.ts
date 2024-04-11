@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { AIMessage, BaseMessage, HumanMessage } from "@langchain/core/messages";
+import * as console from "node:console";
 import * as fs from "node:fs";
 import * as repl from "node:repl";
 import * as yargs from "yargs";
@@ -19,7 +20,7 @@ import { enableVerboseLogging, parseWorkflow, runWorkflow } from "./index";
 async function run(path: string | number, prompt?: string): Promise<void> {
     console.log(`Hello, ${process.env.USER}!`);
     console.log(`You're running Autonomais in ${process.cwd()}.`);
-    console.log("You can exit the interactive session by typing '/quit' or '/exit'.");
+    console.log("You can exit the interactive session by typing '.exit'.");
     console.log("────────────────────────────────────────────────────────────────────────");
     console.log();
 
@@ -31,12 +32,18 @@ async function run(path: string | number, prompt?: string): Promise<void> {
     const contents = fs.readFileSync(path.toString(), "utf-8");
     const nodes = parseWorkflow(contents);
 
-    const messages: BaseMessage[] = [];
-    if (prompt) messages.push(new HumanMessage(prompt));
-
     console.log(`Running workflow ${path}.`);
     console.log(prompt ? `Using prompt: ${prompt}.` : "No prompt provided.");
     console.log();
+
+    let messages: BaseMessage[] = [];
+
+    function initializeContext() {
+        messages = [];
+        if (prompt) messages.push(new HumanMessage(prompt));
+    }
+
+    initializeContext();
 
     const completion = await runWorkflow(nodes, messages);
     messages.push(new AIMessage(completion));
@@ -46,13 +53,8 @@ async function run(path: string | number, prompt?: string): Promise<void> {
         prompt: "→ ",
         useColors: true,
         eval: async (cmd, _, __, callback) => {
-            const trimmedCmd = cmd.trim();
-            if (trimmedCmd === '/quit' || trimmedCmd === '/exit') {
-                replServer.close();
-                return;
-            }
             try {
-                messages.push(new HumanMessage(trimmedCmd));
+                messages.push(new HumanMessage(cmd));
                 const completion = await runWorkflow(nodes, messages);
                 messages.push(new AIMessage(completion));
                 callback(null, `AI: ${completion}`);
@@ -61,6 +63,8 @@ async function run(path: string | number, prompt?: string): Promise<void> {
             }
         },
     });
+
+    replServer.on("reset", initializeContext);
 
     replServer.on("exit", () => {
         console.log("Interactive session ended.");
