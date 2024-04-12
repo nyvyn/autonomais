@@ -27,13 +27,22 @@
     "yargs": "^17.7.2"
   },
   "devDependencies": {
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
     "@types/jest": "^29.5.12",
     "jest": "^29.7.0",
+    "semantic-release": "^23.0.8",
+    "semantic-release-npm-github-publish": "^1.5.5",
     "ts-jest": "^29.1.2",
     "ts-node": "^10.9.2",
-    "tsconfig-paths": "^4.2.0",
-    "semantic-release": "^23.0.8"
+    "tsconfig-paths": "^4.2.0"
   },
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    "@semantic-release/release-notes-generator",
+    "@semantic-release/npm",
+    "@semantic-release/git"
+  ],
   "release": {
     "branches": [
       "main"
