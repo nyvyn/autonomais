@@ -13,7 +13,7 @@
   "scripts": {
     "dev": "ts-node src/autonomais.ts",
     "build": "tsc",
-    "demo": "ts-node src/autonomais.ts ./examples/helloworld.yaml",
+    "demo": "ts-node src/autonomais.ts ./examples/calculator.yaml",
     "test": "jest",
     "update scripts": "npx npm-check-updates -u"
   },

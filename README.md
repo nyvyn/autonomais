@@ -15,18 +15,21 @@
 
 - [Why Autonomais?](#why-autonomais)
 - [Getting Started](#getting-started)
+- [Setup](#setup)
 - [Contributing](#contributing)
 - [Technologies Used](#technologies-used)
 - [License](#license)
 
 ## Why Autonomais?
 
-Autonomais is a framework designed to facilitate the creation and management of AI agents 
-that can work collaboratively on complex tasks. It allows users to define workflows for agents 
-using simple YAML configuration files. 
-These workflows can include a variety of tasks such as processing data, interacting with APIs, 
-and communicating with other agents. The goal of Autonomais is to make it easier to build systems 
-where multiple AI agents can work together to achieve goals that are difficult for a single agent to accomplish alone.
+Autonomais is the simplest way to coordinate multiple AI agents.
+
+For example, create a research team of specialized agents that can work together.
+You might have a research agent, editor agents, and a final agent to combine the work into a one-page paper.
+
+Autonomais is a typescript library you can include in your own software.
+
+For experimentation and simplicity, Autonomais also includes an interactive command-line interface.
 
 ## Getting Started
 
@@ -45,10 +48,16 @@ There are two ways to use Autonomais:
 See the provided `helloworld.yaml` as an example.
 Running this should echo from the LLM "Hello World!" or similar.
 
-To run the demo:
+To run with your own workflow, run the following command from your terminal,
+replacing `helloworld.yaml` with the path to your own agent configuration.
 
-Configure an API key for one of the supported LLM providers,
-e.g. OPENAI_API_KEY.
+```shell
+ts-node ./src/autonomais.ts ./examples/helloworld.yaml
+```
+
+## Setup
+
+Configure an API key for OpenAI setting an environment variable for OPENAI_API_KEY.
 
 Then, ensure the project has been built by running the build command specified in `package.json`:
 
@@ -58,27 +67,21 @@ You can execute the example workflow using the CLI:
 npm run build
 ```
 
-After building the project, you can execute the example workflow using the npm script:
+After building the project, you can execute the example interactive command-line workflow using the npm script:
 
 ```shell
 npm run demo
 ```
 
-This command will execute the `src/autonomais.ts` script with the `examples/helloworld.yaml` workflow file.
-You can also run any other workflow file by replacing `examples/helloworld.yaml` with the path to your desired
+This command will execute the `src/autonomais.ts` script with the `examples/calculator.yaml` workflow file.
+You can also run any other workflow file by replacing `examples/calculator.yaml` with the path to your desired
 workflow file.
 
 To run with your own workflow, run the following command from your terminal,
-replacing `helloworld.yaml` with the path to your own agent configuration.
+replacing `calculator.yaml` with the path to your own agent configuration.
 
 ```shell
-ts-node ./src/autonomais.ts ./examples/helloworld.yaml
-```
-
-Alternatively, if you have installed Autonomais as an npm package, you can use it in your JavaScript or TypeScript code by importing the relevant classes and functions.
-
-```shell
-ts-node ./src/autonomais.ts ./examples/helloworld.yaml
+ts-node ./src/autonomais.ts ./examples/calculator.yaml
 ```
 
 ## Contributing
