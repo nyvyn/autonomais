@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 
+import { Calculator } from "@langchain/community/tools/calculator";
 import { AIMessage, BaseMessage, HumanMessage } from "@langchain/core/messages";
+import { StructuredTool } from "@langchain/core/tools";
 import * as console from "node:console";
 import * as fs from "node:fs";
 import * as repl from "node:repl";
@@ -30,7 +32,8 @@ async function run(path: string | number, prompt?: string): Promise<void> {
     }
 
     const contents = fs.readFileSync(path.toString(), "utf-8");
-    const nodes = parseWorkflow(contents);
+    const tools = makeTools();
+    const nodes = parseWorkflow(contents, tools);
 
     console.log(`Running workflow ${path}.`);
     if (prompt) console.log(`Sending prompt: ${prompt}.`);
@@ -76,6 +79,13 @@ function colorize(text: string) {
     return `\x1b[32m ${text} \x1b[0m`;
 }
 
+function makeTools() {
+    const tools: StructuredTool[] = [];
+
+    tools.push(new Calculator());
+
+    return tools;
+}
 
 /**
  * Main function to run the program.
