@@ -32,6 +32,8 @@ Autonomais also includes an interactive command-line interface for desktop workf
 
 Autonomais simplifies building powerful agentic workflow.
 
+Workflows are defined as an array of `GraphNodes` which are passed to the `GraphRunner invoke` method.
+
 ## Getting Started
 
 1. As an npm package:
