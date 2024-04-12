@@ -1,0 +1,5 @@
+# Tests the LLMs
+
+---
+hello-world:
+  instructions: "Repeat back what the user said, or Hello World if none."

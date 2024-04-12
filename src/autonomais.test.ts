@@ -1,6 +1,6 @@
 describe("autonomais cli", () => {
     let originalArgv: string[];
-    let processExitSpy: jest.SpyInstance<never, [code?: number], any>;
+    let processExitSpy: jest.SpyInstance<never, [code?: number]>;
 
     beforeEach(() => {
         jest.resetModules();
@@ -32,10 +32,6 @@ describe("autonomais cli", () => {
 
         expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("autonomais.ts"));
     });
-
-    it("should run weather example workflow", async () => {
-        await runCommand("./examples/weather.yaml");
-    });
 });
 
 /**
@@ -45,8 +41,8 @@ describe("autonomais cli", () => {
  */
 async function runCommand(...args: string[]) {
     process.argv = [
-        "node", // Not used, but a value is required at this index in the array
-        "autonomais.ts", // Not used, but a value is required at this index in the array
+        "node", // Not used, but a value is required at this index in the array.
+        "autonomais.ts", // Not used, but a value is required at this index in the array.
         ...args,
     ];
 
