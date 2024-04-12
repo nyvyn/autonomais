@@ -22,22 +22,14 @@
 
 ## Why Autonomais?
 
-Autonomais is the simplest way to coordinate multiple AI agents.
+Autonomais goal is to provide the absolute fastest and simplest way to coordinate multiple AI agents.
 
-For example, create a research team of specialized agents that can work together.
-You might have a research agent, editor agents, and a final agent to combine the work into a one-page paper.
-
-Autonomais is a typescript library you can include in your own software.
-
+Autonomais is a typescript library with a commercial-fiendly license.
 For experimentation and simplicity, Autonomais also includes an interactive command-line interface.
 
 ## Getting Started
 
-There are two ways to use Autonomais:
-
 1. As an npm package:
-
-   Install Autonomais using npm:
 
    ```shell
    npm i autonomais
@@ -45,23 +37,20 @@ There are two ways to use Autonomais:
 
 2. Via the command-line:
 
-See the provided `helloworld.yaml` as an example.
-Running this should echo from the LLM "Hello World!" or similar.
-
-To run with your own workflow, run the following command from your terminal,
-replacing `helloworld.yaml` with the path to your own agent configuration.
-
-```shell
-ts-node ./src/autonomais.ts ./examples/helloworld.yaml
-```
-
+   ```shell
+   ts-node ./src/autonomais.ts ./examples/helloworld.yaml
+   ```
 ## Setup
 
-Configure an API key for OpenAI setting an environment variable for OPENAI_API_KEY.
+### NPM Package
 
-Then, ensure the project has been built by running the build command specified in `package.json`:
+Set an environment variable for the OpenAI API: `OPENAI_API_KEY`.
 
-You can execute the example workflow using the CLI:
+### Command-line
+
+Set an environment variable for the OpenAI API: `OPENAI_API_KEY`.
+
+Build the code using the build command in `package.json`:
 
 ```shell
 npm run build
