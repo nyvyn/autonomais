@@ -24,8 +24,10 @@
 
 Autonomais goal is to provide the absolute fastest and simplest way to coordinate multiple AI agents.
 
-Autonomais is a typescript library with a commercial-fiendly license.
-For experimentation and simplicity, Autonomais also includes an interactive command-line interface.
+Autonomais is a typescript npm library with a commercial-fiendly license.
+Autonomais also includes an interactive command-line interface.
+
+## Key Concepts
 
 ## Getting Started
 
