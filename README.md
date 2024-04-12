@@ -30,6 +30,18 @@ where multiple AI agents can work together to achieve goals that are difficult f
 
 ## Getting Started
 
+There are two ways to use Autonomais:
+
+1. As an npm package:
+
+   Install Autonomais using npm:
+
+   ```shell
+   npm i autonomais
+   ```
+
+2. Via the command-line:
+
 See the provided `helloworld.yaml` as an example.
 Running this should echo from the LLM "Hello World!" or similar.
 
@@ -58,6 +70,12 @@ workflow file.
 
 To run with your own workflow, run the following command from your terminal,
 replacing `helloworld.yaml` with the path to your own agent configuration.
+
+```shell
+ts-node ./src/autonomais.ts ./examples/helloworld.yaml
+```
+
+Alternatively, if you have installed Autonomais as an npm package, you can use it in your JavaScript or TypeScript code by importing the relevant classes and functions.
 
 ```shell
 ts-node ./src/autonomais.ts ./examples/helloworld.yaml
