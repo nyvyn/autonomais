@@ -1,6 +1,6 @@
 import { BaseLanguageModel } from "@langchain/core/dist/language_models/base";
-import { AIMessage, BaseMessage, HumanMessage } from "@langchain/core/messages";
-import { PromptTemplate } from "@langchain/core/prompts";
+import { AIMessage, BaseMessage, HumanMessage, SystemMessage } from "@langchain/core/messages";
+import { ChatPromptTemplate, MessagesPlaceholder, PromptTemplate } from "@langchain/core/prompts";
 import { Runnable, RunnableConfig, RunnableLambda } from "@langchain/core/runnables";
 import { END, StateGraph } from "@langchain/langgraph";
 import { BinaryOperator } from "@langchain/langgraph/dist/channels/binop";
@@ -116,15 +116,17 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
         });
         if (node.isExit) conditionalAgents.push(END_NODE);
 
-        const prompt = PromptTemplate.fromTemplate(`
-            You have been called to make a decision based on the context of the conversation.
-            This is the conversation so far: \"\"\"{messages}\"\"\".
-            Your instructions are: \"\"\"{instructions}\"\"\".
-            Based on the previous instructions and message history, reply with one (and only one) of the following: 
-            ${conditionalAgents.join(", ")}.
-        `);
+        const prompt = ChatPromptTemplate.fromMessages([
+            new SystemMessage(
+                `You have been called to make a decision based on the context of the conversation.`
+            ),
+            new MessagesPlaceholder("messages"),
+            new HumanMessage(`Your instructions are: \"\"\"{instructions}\"\"\".`),
+            new HumanMessage(`Based on the previous instructions and message history, reply with one (and only one) of the following: 
+            ${conditionalAgents.join(", ")}.`),
+        ]);
         const completion = await prompt.pipe(model).invoke({
-            messages: JSON.stringify(state.messages),
+            messages: state.messages,
             instructions: node.instructions!,
         }, {
             ...config,
@@ -168,7 +170,7 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
                 throw new Error("Graph misconfigured. Node name is required.");
             }
             if (!node.instructions) {
-                throw new Error("Graph misconfigured. Node instructions are required.");
+                throw new Error(`Graph misconfigured. Node instructions are required for node: ${node.name}`);
             }
         });
 
