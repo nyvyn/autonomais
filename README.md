@@ -44,7 +44,7 @@ Key Features:
 
 ## Getting Started
 
-Kickstart your journey with Autonomais by integrating it into your projects:
+How to use with your projects:
 
 1. As an npm package:
 
@@ -54,9 +54,9 @@ Kickstart your journey with Autonomais by integrating it into your projects:
    npm i autonomais
    ```
 
-2. Via the command-line interface:
+2. Via the desktop:
 
-   Experiment and run workflows directly through the command line:
+   Experiment and run workflows directly through the interactive command line:
 
    ```shell
    ts-node ./src/autonomais.ts ./examples/echo.yaml
