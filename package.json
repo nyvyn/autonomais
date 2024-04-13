@@ -12,7 +12,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "commit": "cz",
+    "commit": "git add -p && cz",
     "demo": "ts-node src/autonomais.ts ./examples/calculator.yaml",
     "dev": "ts-node src/autonomais.ts",
     "semantic-release": "semantic-release",
@@ -65,7 +65,6 @@
   },
   "husky": {
     "hooks": {
-      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
       "prepare-commit-msg": "exec < /dev/tty && npx cz --hook || true"
     }
   }
