@@ -1,14 +1,14 @@
 ---
 verify-request:
-  instructions: "Has the user provided which numbers to calculate? If so go to calculate, otherwise ask."
+  instructions: Has the user provided which numbers to calculate? If so go to calculate, otherwise ask.
   conditional: true
 
 ask-for-calculation:
-  instructions: "What calculation would you like to complete?"
+  instructions: What calculation would you like to complete?
   exit: true
 
 calculate:
-  instructions: "Calculate the provided equation."
-  tools: [ "calculator" ]
+  instructions: Calculate the provided equation.
+  tools: [calculator]
   exit: true # setting this is optional, the last node is always an exit node
 

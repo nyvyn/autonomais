@@ -1,16 +1,19 @@
 ---
 determine-location:
-  instructions: "Is the location of the desired weather information in the message history? If so, continue, otherwise, ask for the desired location."
+  instructions: >
+    Is the location of the desired weather information in the message history? 
+    If so, continue, otherwise, ask for the desired location.
   conditional: true
 
 ask-for-location:
-  instructions: "Ask the user for their location."
+  instructions: Ask the user for their location.
   exit: true
 
 retrieve-weather:
-  instructions: "Retrieve today and tomorrow's weather.
+  instructions: >
+    Retrieve today and tomorrow's weather.
     Format as a markdown table with low, high, and conditions.
-    Ask if location is not provided."
-  tools: [ "web-browser" ]
+    Ask if location is not provided.
+  tools: [bing-search]
   exit: true # setting this is optional, the last node is always an exit node
 

@@ -267,7 +267,7 @@ runner.invoke({messages});
 
 Autonomais is built on [LangGraph](https://js.langchain.com/docs/langgraph)
 and [LangChain](https://js.langchain.com/docs/get_started/introduction),
-provding a flexible and powerful foundation.
+providing a flexible and powerful foundation.
 
 The key addition of this library is to move the configuration of the graph workflows to attributes of the nodes.
 These attributes then guide the setup of the graph as found in `src/agents/GraphRunner`.
@@ -290,6 +290,7 @@ Thank you LangChain team!
   as the tools can be directly passed to either the `parseWorkflow(config)` or when defining a `GraphNode`.
 * Introduce LangChain FakeLLM to improve testing.
 * It would be great to create a `web-browser` tool that doesn't have too many dependencies.
+* Ability to constrain which nodes are available for conditional nodes to route to.
 
 ## Technologies Used
 
