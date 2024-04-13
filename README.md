@@ -16,9 +16,11 @@
 - [Why Autonomais?](#why-autonomais)
 - [Getting Started](#getting-started)
 - [Setup](#setup)
+- [Key Concepts](#key-concepts)
 - [How It Works](#how-it-works)
-- [Contributing](#contributing)
 - [Technologies Used](#technologies-used)
+- [Roadmap](#roadmap)
+- [Contributing](#contributing)
 - [License](#license)
 
 ## Why Autonomais?
@@ -76,7 +78,7 @@ replacing `calculator.yaml` with the path to your own agent configuration.
 ts-node ./src/autonomais.ts ./examples/calculator.yaml
 ```
 
-## How It Works
+## Key Concepts
 
 Autonomais helps developers build flexible AI agent workflows.
 
@@ -166,7 +168,7 @@ Note: Conditional nodes cannot use tools, only agent and exit nodes can.
 
 This can be run interactively as follows:
 
-### Via the shell
+### Via the interactive shell
 
 ```shell
 ts-node ./src/autonomais.ts ./examples/echo.yaml
@@ -194,10 +196,12 @@ runWorkflow(nodes, messages);
 ### Programmatically with json
 
 ```typescript
+// Tools are defined separately and passed to Agent and Exit nodes.
 const nodes: GraphNode[] = [
    {
       name: "hello-world",
       instructions: "Repeat back what the user said, or Hello World if none."
+      tools: [tools]
    }
 ];
 
@@ -208,19 +212,31 @@ const runner = GraphRunner.make({model, nodes});
 runner.invoke({messages});
 ```
 
-## Contributing
+## How it Works
 
-We welcome contributions from the community! 
-If you are interested in helping to improve Autonomais, please follow these steps:
+Autonomais is built on [LangGraph](https://js.langchain.com/docs/langgraph)
+and [LangChain](https://js.langchain.com/docs/get_started/introduction),
+provding a flexible and powerful foundation.
 
-1. **Fork the repository**: Make a copy of the project on your own account to work on.
-2. **Create a branch**: Create a branch in your fork for your changes.
-3. **Make your changes**: Implement your changes, add new features, or fix bugs.
-4. **Write tests**: Ensure that your changes are covered by tests and that all tests pass.
-5. **Document your changes**: Update the README or any relevant documentation with details of your changes.
-6. **Open a pull request**: Submit a pull request to the main repository with a clear description of what your changes do.
+The key addition of this library is to move the configuration of the graph workflows to attributes of the nodes.
+These attributes then guide the setup of the graph as found in `src/agents/GraphRunner`.
 
-Please make sure to adhere to the project's coding standards and include appropriate tests and documentation with your contributions.
+In turn, GraphRunner configures nodes as Agents, using `createFunctionCallingExecutor`. This is a prebuilt function
+offered by LangGraph here:
+[source](https://github.com/langchain-ai/langgraphjs/blob/main/langgraph/src/prebuilt/chat_agent_executor.ts).
+This gives agents their tool-using ability.
+
+Conditional nodes use [LCEL](https://js.langchain.com/docs/expression_language/get_started) to determine the next
+node to route too. In practice, this is the function configured as part of a conditional edge for a graph:
+[addConditionalEdges](https://js.langchain.com/docs/langgraph#addconditionaledges).
+
+Thank you LangChain team!
+
+## Roadmap
+
+A "next up" feature is the ability to dynamically define tools for use by the CLI.
+As an aside, this is easy to do when using Autonomais as a library, as the tools can be directly passed
+to either the `parseWorkflow(config)` or when defining a `GraphNode`.
 
 ## Technologies Used
 
@@ -230,6 +246,22 @@ Autonomais is built using a variety of modern technologies to ensure efficiency,
 - **LangGraph**: A library for creating and managing graph-based data structures, facilitating complex interactions between AI agents.
 - **Yargs**: A Node.js library for building command-line tools with powerful argument parsing.
 - **Jest**: A delightful JavaScript Testing Framework with a focus on simplicity, used for unit testing.
+
+## Contributing
+
+We welcome contributions from the community!
+If you are interested in helping to improve Autonomais, please follow these steps:
+
+1. **Fork the repository**: Make a copy of the project on your own account to work on.
+2. **Create a branch**: Create a branch in your fork for your changes.
+3. **Make your changes**: Implement your changes, add new features, or fix bugs.
+4. **Write tests**: Ensure that your changes are covered by tests and that all tests pass.
+5. **Document your changes**: Update the README or any relevant documentation with details of your changes.
+6. **Open a pull request**: Submit a pull request to the main repository with a clear description of what your changes
+   do.
+
+Please make sure to adhere to the project's coding standards and include appropriate tests and documentation with your
+contributions.
 
 ## License
 
