@@ -285,9 +285,10 @@ Thank you LangChain team!
 
 ## Roadmap
 
-A "next up" feature is the ability to dynamically define tools for use by the CLI.
-As an aside, this is easy to do when using Autonomais as a library, as the tools can be directly passed
-to either the `parseWorkflow(config)` or when defining a `GraphNode`.
+* A "next up" feature is the ability to dynamically define tools for use by the CLI.
+  As an aside, this is easy to do when using Autonomais as a library,
+  as the tools can be directly passed to either the `parseWorkflow(config)` or when defining a `GraphNode`.
+* It would be great to create a `web-browser` tool that doesn't have too many dependencies.
 
 ## Technologies Used
 
