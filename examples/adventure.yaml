@@ -39,3 +39,4 @@ narrative-progression:
 end-adventure:
   instructions: "In about 80 words, provide closure based on the cumulative decisions 
     and actions of the player throughout the game, concluding their adventure."
+  exit: true # setting this is optional, the last node is always an exit node

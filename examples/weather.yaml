@@ -14,4 +14,3 @@ retrieve-weather:
     Ask if location is not provided."
   tools: ["bing-search"]
   exit: true # setting this is optional, the last node is always an exit node
-
