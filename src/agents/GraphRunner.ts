@@ -23,6 +23,13 @@ export type GraphRunnerInput = {
 };
 export type GraphRunnerOutput = string;
 
+
+/**
+ *  A Graph Runner executes a workflow.
+ *  Construction a runner with make().
+ *
+ *  @extends Runnable
+ */
 export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
     public declare lc_namespace: ["Graph Runner"];
 
@@ -37,10 +44,19 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
         this.graph = input.graph;
     }
 
+    /**
+     *  Creates a new instance of GraphRunner from an array of GraphNodes.
+     *
+     *  @param {Object} options - The options for creating a new GraphRunner instance.
+     *  @param {BaseLanguageModel} options.model - The base language model.
+     *  @param {GraphNode[]} options.nodes - The graph nodes defining the workflow.
+     *
+     *  @returns {Promise<GraphRunner>} A promise that resolves to a new GraphRunner instance.
+     */
     public static async make({model, nodes}: Readonly<{
         model: BaseLanguageModel,
         nodes: GraphNode[],
-    }>) {
+    }>): Promise<GraphRunner> {
         const graph = await GraphRunner.prepareGraph(
             model,
             nodes,
@@ -50,6 +66,16 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
         });
     }
 
+    /**
+     *  Runs an agent node of the workflow.
+     *
+     *  @param {AgentState} state - The current state of the workflow.
+     *  @param {GraphNode} node - The node represening the agent to invoke.
+     *  @param {BaseLanguageModel} model - The language model to use for the Runnable.
+     *  @param {RunnableConfig} [config] - Optional configuration for the Runnable.
+     *
+     *  @returns {Promise<AgentState>} The updated state after calling the agent.
+     */
     private static callAgent = async (
         state: AgentState, node: GraphNode, model: BaseLanguageModel, config?: RunnableConfig
     ): Promise<AgentState> => {
@@ -102,6 +128,17 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
         };
     };
 
+    /**
+     *  Runs a conditional node of the workflow.
+     *
+     *  @param {AgentState} state - The current state of the workflow.
+     *  @param {GraphNode} node - The node represening the agent to invoke.
+     *  @param {GraphNode[]} nodes - The list of all graph nodes (used for selecting the next node).
+     *  @param {BaseLanguageModel} model - The language model to use for the workflow.
+     *  @param {RunnableConfig} [config] - Optional configuration for the Runnable.
+     *
+     *  @returns {Promise<AgentState>} - The updated state of the agent after executing the conditional agent.
+     */
     private static callConditional = async (
         state: AgentState, node: GraphNode, nodes: GraphNode[], model: BaseLanguageModel, config?: RunnableConfig
     ): Promise<AgentState> => {
@@ -142,6 +179,14 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
         };
     };
 
+    /**
+     *  Determines the next agent based on the current agent state and mapping.
+     *
+     *  @param {AgentState} state - The current agent state.
+     *  @param {Record<string, string>} mapping - The mapping of node names to nodes.
+     *
+     *  @returns string The next node to run in the workflow.
+     */
     private static determineNextAgent = (state: AgentState, mapping: Record<string, string>) => {
         const lastMessage = state.messages[state.messages.length - 1];
         const lastContent = lastMessage.content;
@@ -161,6 +206,16 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
         }
     };
 
+    /**
+     *  Converts the provided nodes into a Pregel graph.
+     *
+     *  @param {BaseLanguageModel} model - The base language model.
+     *  @param {GraphNode[]} nodes - An array of graph nodes defining the workflow.
+     *
+     *  @returns {Promise<Pregel>} - A promise that resolves to a compiled graph representing the workflow.
+     *
+     *  @throws {Error} - Throws an error if a node is misconfigured or if the graph has invalid properties.
+     */
     private static async prepareGraph(
         model: BaseLanguageModel,
         nodes: GraphNode[],
@@ -264,6 +319,16 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
         return workflow.compile();
     }
 
+    /**
+     *  Invokes the graph runner to process the given input messages.
+     *
+     *  @param {GraphRunnerInput} input - The input messages to be processed by the graph runner.
+     *  @param {RunnableConfig} [options] - Optional configuration for the Runnable.
+     *
+     *  @returns {Promise<GraphRunnerOutput>} A promise that resolves with the output of the graph runner.
+     *
+     *  @throws {Error} If the response from AI is invalid.
+     */
     public async invoke(input: GraphRunnerInput, options?: RunnableConfig): Promise<GraphRunnerOutput> {
 
         const output: {
