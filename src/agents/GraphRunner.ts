@@ -2,15 +2,17 @@ import { BaseLanguageModel } from "@langchain/core/dist/language_models/base";
 import { AIMessage, BaseMessage, HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { ChatPromptTemplate, MessagesPlaceholder, PromptTemplate } from "@langchain/core/prompts";
 import { Runnable, RunnableConfig, RunnableLambda } from "@langchain/core/runnables";
-import { END, StateGraph } from "@langchain/langgraph";
+import { StructuredTool } from "@langchain/core/tools";
+import { BaseCheckpointSaver, END, StateGraph } from "@langchain/langgraph";
 import { BinaryOperator } from "@langchain/langgraph/dist/channels/binop";
 import { createFunctionCallingExecutor } from "@langchain/langgraph/prebuilt";
 import { Pregel } from "@langchain/langgraph/pregel";
 import { GraphNode } from "../types";
-import { logger } from "../utils";
+import { logger, parseWorkflow } from "../utils";
 import { END_NODE } from "../utils/variables";
 
 export type AgentState = {
+    lastNode?: GraphNode;
     messages: BaseMessage[];
 };
 
@@ -45,21 +47,49 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
     }
 
     /**
+     *  Creates a GraphRunner instance from a workflow.
+     *
+     *  @param {Object} params - The parameters object.
+     *  @param {BaseCheckpointSaver} params.checkpoint - Optional checkpoint saver for the graph.
+     *  @param {BaseLanguageModel} params.model - The base language model.
+     *  @param {string} params.path - The path to the workflow.
+     *  @param {StructuredTool[]} params.tools - An array of tools required by the workflow.
+     *
+     *  @return {Promise<GraphRunner>} - A promise that resolves with a GraphRunner instance.
+     */
+    public static async fromWorkflow({checkpoint, model, path, tools}: Readonly<{
+        checkpoint?: BaseCheckpointSaver,
+        model: BaseLanguageModel,
+        path: string,
+        tools?: StructuredTool[],
+    }>): Promise<GraphRunner> {
+        const nodes = parseWorkflow(path, tools);
+        return GraphRunner.make({
+            model,
+            nodes,
+            checkpoint,
+        });
+    }
+
+    /**
      *  Creates a new instance of GraphRunner from an array of GraphNodes.
      *
-     *  @param {Object} options - The options for creating a new GraphRunner instance.
-     *  @param {BaseLanguageModel} options.model - The base language model.
-     *  @param {GraphNode[]} options.nodes - The graph nodes defining the workflow.
+     *  @param {Object} params - The options for creating a new GraphRunner instance.
+     *  @param {BaseCheckpointSaver} params.checkpoint - Optional checkpoint saver for the graph.
+     *  @param {BaseLanguageModel} params.model - The base language model.
+     *  @param {GraphNode[]} params.nodes - The graph nodes defining the workflow.
      *
      *  @returns {Promise<GraphRunner>} A promise that resolves to a new GraphRunner instance.
      */
-    public static async make({model, nodes}: Readonly<{
+    public static async make({checkpoint, model, nodes}: Readonly<{
+        checkpoint?: BaseCheckpointSaver,
         model: BaseLanguageModel,
         nodes: GraphNode[],
     }>): Promise<GraphRunner> {
         const graph = await GraphRunner.prepareGraph(
             model,
             nodes,
+            checkpoint,
         );
         return new GraphRunner({
             graph
@@ -124,6 +154,7 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
         logger(message.content as string);
 
         return {
+            lastNode: node,
             messages: [message],
         };
     };
@@ -175,6 +206,7 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
         logger(message.content as string);
 
         return {
+            lastNode: node,
             messages: [message],
         };
     };
@@ -211,6 +243,7 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
      *
      *  @param {BaseLanguageModel} model - The base language model.
      *  @param {GraphNode[]} nodes - An array of graph nodes defining the workflow.
+     *  @param {BaseCheckpointSaver} checkpoint - Optional checkpoint saver for the graph.
      *
      *  @returns {Promise<Pregel>} - A promise that resolves to a compiled graph representing the workflow.
      *
@@ -219,6 +252,7 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
     private static async prepareGraph(
         model: BaseLanguageModel,
         nodes: GraphNode[],
+        checkpoint?: BaseCheckpointSaver,
     ): Promise<Pregel> {
         nodes.forEach((node) => {
             if (!node.name) {
@@ -308,15 +342,15 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
                 // If not the last node, add the edge to the next node.
                 if (index < nodes.length - 1) {
                     if (node.isExit) {
-                        workflow.addEdge(node.name!, END);
+                        workflow.addEdge(node.name, END);
                     } else {
-                        workflow.addEdge(node.name!, nodes[index + 1].name!);
+                        workflow.addEdge(node.name, nodes[index + 1].name!);
                     }
                 }
             }
         });
 
-        return workflow.compile();
+        return workflow.compile(checkpoint);
     }
 
     /**
