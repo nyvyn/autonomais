@@ -3,7 +3,7 @@ import { AIMessage, BaseMessage, HumanMessage, SystemMessage } from "@langchain/
 import { ChatPromptTemplate, MessagesPlaceholder, PromptTemplate } from "@langchain/core/prompts";
 import { Runnable, RunnableConfig, RunnableLambda } from "@langchain/core/runnables";
 import { StructuredTool } from "@langchain/core/tools";
-import { BaseCheckpointSaver, END, Graph, StateGraph } from "@langchain/langgraph";
+import { BaseCheckpointSaver, END, StateGraph } from "@langchain/langgraph";
 import { BinaryOperator } from "@langchain/langgraph/dist/channels/binop";
 import { createFunctionCallingExecutor } from "@langchain/langgraph/prebuilt";
 import { Pregel } from "@langchain/langgraph/pregel";
@@ -12,7 +12,7 @@ import { logger, parseWorkflow } from "../utils";
 import { END_NODE } from "../utils/variables";
 
 export type AgentState = {
-    lastNode?: GraphNode;
+    lastNode?: string;
     messages: BaseMessage[];
 };
 
@@ -154,7 +154,7 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
         logger(message.content as string);
 
         return {
-            lastNode: node,
+            lastNode: node.name,
             messages: [message],
         };
     };
@@ -206,7 +206,7 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
         logger(message.content as string);
 
         return {
-            lastNode: node,
+            lastNode: node.name,
             messages: [message],
         };
     };
@@ -273,7 +273,7 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
             }
         } = {
             lastNode: {
-              value: null,
+                value: null,
             },
             messages: {
                 value: (x: BaseMessage[], y: BaseMessage[]) => x.concat(y),
