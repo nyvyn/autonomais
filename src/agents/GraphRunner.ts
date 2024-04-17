@@ -3,7 +3,7 @@ import { AIMessage, BaseMessage, HumanMessage, SystemMessage } from "@langchain/
 import { ChatPromptTemplate, MessagesPlaceholder, PromptTemplate } from "@langchain/core/prompts";
 import { Runnable, RunnableConfig, RunnableLambda } from "@langchain/core/runnables";
 import { StructuredTool } from "@langchain/core/tools";
-import { BaseCheckpointSaver, END, StateGraph } from "@langchain/langgraph";
+import { BaseCheckpointSaver, END, Graph, StateGraph } from "@langchain/langgraph";
 import { BinaryOperator } from "@langchain/langgraph/dist/channels/binop";
 import { createFunctionCallingExecutor } from "@langchain/langgraph/prebuilt";
 import { Pregel } from "@langchain/langgraph/pregel";
@@ -264,11 +264,17 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
         });
 
         const schema: {
+            lastNode: {
+                value: null;
+            };
             messages: {
                 value: BinaryOperator<unknown> | null;
                 default?: () => unknown;
             }
         } = {
+            lastNode: {
+              value: null,
+            },
             messages: {
                 value: (x: BaseMessage[], y: BaseMessage[]) => x.concat(y),
                 default: () => [],
