@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@langchain/community": "^0.2.5",
-    "@langchain/core": "^0.2.6",
+    "@langchain/core": "^0.2.3",
     "@langchain/langgraph": "0.0.23",
     "@langchain/openai": "latest",
     "json5": "^2.2.3",
