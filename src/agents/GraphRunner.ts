@@ -45,7 +45,7 @@ export type GraphRunnerOutput = string;
 
 /**
  *  A Graph Runner executes a workflow.
- *  Construction a runner with make() .
+ *  Construction a runner with make().
  *
  *  @extends Runnable
  */
