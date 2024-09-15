@@ -228,7 +228,7 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
       ),
       new MessagesPlaceholder("messages"),
       new HumanMessage(`Your instructions are: \"\"\"{instructions}\"\"\".`),
-      new HumanMessage(`Based on the previous instructions and message history, reply with one (and only one) of the following: 
+      new HumanMessage(`Following the instructions, reply with one (and only one) of the following: 
             ${conditionalAgents.join(", ")}.`),
     ]);
     const completion = await prompt.pipe(model).invoke(
