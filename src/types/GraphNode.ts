@@ -5,5 +5,6 @@ export type GraphNode = {
   instructions: string;
   isConditional: boolean;
   isExit: boolean;
+  links?: GraphNode[];
   tools?: StructuredTool[];
 };
