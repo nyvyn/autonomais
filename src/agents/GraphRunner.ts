@@ -316,25 +316,6 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
       }),
     });
 
-    // const schema: {
-    //   lastNode: {
-    //     reducer: BinaryOperator<string, string> | null;
-    //     default?: () => string;
-    //   };
-    //   messages: {
-    //     reducer: BinaryOperator<BaseMessage[], BaseMessage[]> | null;
-    //     default?: () => BaseMessage[];
-    //   };
-    // } = {
-    //   lastNode: {
-    //     reducer: null,
-    //   },
-    //   messages: {
-    //     reducer: (x: BaseMessage[], y: BaseMessage[]) => x.concat(y),
-    //     default: () => [],
-    //   },
-    // };
-
     // Define a new graph
     const workflow = new StateGraph<
       typeof schema.spec,
