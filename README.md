@@ -131,6 +131,8 @@ They represent distinct steps or operations within a workflow and come in three 
 - **Conditional**: Node is treated as conditional, instructions should guide LLM to choose next best node.
 - **Exit**: Node should exit the workflow after completion. In practice, this is an agent node that doesn't continue
   to the next in the chain.
+- **Links**: For conditional nodes, optionally specify the nodes that to link to.
+  If not specified, all nodes except self are options.
 
 ### Constructing a Workflow
 
