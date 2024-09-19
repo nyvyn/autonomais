@@ -3,6 +3,7 @@ determine-topic:
   instructions: "Has a topic to research been provided by the userAI? 
     If so, continue to `Research`, otherwise, ask go to `Ask for topic`."
   conditional: true
+  links: [ "ask-for-topic", "research" ]
 
 ask-for-topic:
   instructions: "Ask the user what topic to research."
