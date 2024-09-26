@@ -201,15 +201,16 @@ A common use is to ensure that direction has been provided before executing a ch
 
 ```yaml
 identify-topic:
-   instructions: If the user has not provided a topic, then ask them too. Otherwise start researching.
+  instructions: "If the user has not provided a topic, then ask them too. Otherwise start researching."
    conditional: true
+  links: [ "ask-for-topic", "researcher" ]
 
 ask-for-topic:
-   instructions: Ask the user what topic to research.
+  instructions: "Ask the user what topic to research."
    exit: true
 
 researcher:
-   instructions: Research useful topics on the provided
+  instructions: "Research useful topics on the provided."
    exit: true # this is optional, as the last node is an exit node by default.
 ```
 
