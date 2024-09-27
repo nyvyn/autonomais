@@ -5,7 +5,7 @@ import {
   HumanMessage,
   SystemMessage,
 } from "@langchain/core/messages";
-import { ChatPromptTemplate, PromptTemplate } from "@langchain/core/prompts";
+import { PromptTemplate } from "@langchain/core/prompts";
 import {
   Runnable,
   RunnableConfig,
@@ -112,38 +112,26 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
     messages.push(new HumanMessage(node.instructions!));
 
     let message: BaseMessage;
-    if (node.tools?.length > 0) {
-      const toolChain = createReactAgent({
-        llm: model,
-        tools: node.tools,
-      });
+    const toolChain = createReactAgent({
+      llm: model,
+      tools: node.tools,
+    });
 
-      const completion = await toolChain.invoke(
-        {
-          messages,
-        },
-        {
-          ...config,
-          runName: `Tool Agent - ${node.name}`,
-        },
-      );
-
-      const lastMessage = completion.messages[completion.messages.length - 1];
-
-      message = lastMessage
-        ? new AIMessage(lastMessage.content)
-        : new AIMessage("No response from AI.");
-    } else {
-      const prompt = ChatPromptTemplate.fromMessages(messages);
-      const completion = await prompt.pipe(model).invoke(undefined, {
+    const completion = await toolChain.invoke(
+      {
+        messages,
+      },
+      {
         ...config,
-        runName: `Node Agent - ${node.name}`,
-      });
+        runName: `Tool Agent - ${node.name}`,
+      },
+    );
 
-      message = completion.content
-        ? new AIMessage(completion.content.toString())
-        : new AIMessage("No response from AI.");
-    }
+    const lastMessage = completion.messages[completion.messages.length - 1];
+
+    message = lastMessage
+      ? new AIMessage(lastMessage.content)
+      : new AIMessage("No response from AI.");
 
     logger(message.content as string);
 
