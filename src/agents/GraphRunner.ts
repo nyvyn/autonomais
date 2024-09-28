@@ -1,6 +1,6 @@
 import { BaseChatModel } from "@langchain/core/dist/language_models/chat_models";
 import { AIMessage, BaseMessage, HumanMessage } from "@langchain/core/messages";
-import { ChatPromptTemplate, PromptTemplate } from "@langchain/core/prompts";
+import { PromptTemplate } from "@langchain/core/prompts";
 import {
   Runnable,
   RunnableConfig,
