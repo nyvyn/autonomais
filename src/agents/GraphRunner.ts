@@ -1,11 +1,6 @@
 import { BaseChatModel } from "@langchain/core/dist/language_models/chat_models";
-import {
-  AIMessage,
-  BaseMessage,
-  HumanMessage,
-  SystemMessage,
-} from "@langchain/core/messages";
-import { PromptTemplate } from "@langchain/core/prompts";
+import { AIMessage, BaseMessage, HumanMessage } from "@langchain/core/messages";
+import { ChatPromptTemplate, PromptTemplate } from "@langchain/core/prompts";
 import {
   Runnable,
   RunnableConfig,
@@ -103,11 +98,6 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
     logger(`Calling agent: ${node.name}`);
 
     const messages: BaseMessage[] = [];
-    messages.push(
-      new SystemMessage(
-        "You are to evalute a conversation and then follow a set of instructions.",
-      ),
-    );
     messages.push(...state.messages);
     messages.push(new HumanMessage(node.instructions!));
 
