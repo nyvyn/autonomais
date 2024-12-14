@@ -132,7 +132,7 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
 
     logger(message.content as string);
 
-    // Create state update prompt if node has state variables defined
+    let sharedState = state.state;
     if (node.state?.length > 0) {
       const stateUpdatePrompt = PromptTemplate.fromTemplate(
         `Based on the message from an AI agent to a human, update the following state variables:
@@ -153,17 +153,23 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
         },
       );
 
-      const stateUpdate = JSON.parse(update.content as string);
-      const updatedState = {
+      let stateUpdate: Record<string, string>;
+      try {
+        stateUpdate = JSON.parse(update.content as string);
+      } catch (error) {
+        logger(`Error parsing state update: ${error}`);
+        stateUpdate = {};
+      }
+      sharedState = {
         ...state.state,
-        ...stateUpdate
+        ...stateUpdate,
       };
     }
 
     return {
       lastNode: node.name,
       messages: [message],
-      state: updatedState,
+      state: sharedState,
     };
   };
 
@@ -226,7 +232,7 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
     return {
       lastNode: node.name,
       messages: [message],
-      sharedState: state.sharedState,
+      state: state.state,
     };
   };
 
