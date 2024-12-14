@@ -7,4 +7,8 @@ export type GraphNode = {
   isExit: boolean;
   links?: GraphNode[];
   tools?: StructuredTool[];
+  state?: Record<string, {
+    value: string;
+    description: string;
+  }>;
 };
