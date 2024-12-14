@@ -153,8 +153,11 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
         },
       );
 
-      const updatedState = JSON.parse(update.content as string);
-      // merge the original AgentState.state with this updatedState
+      const stateUpdate = JSON.parse(update.content as string);
+      const updatedState = {
+        ...state.state,
+        ...stateUpdate
+      };
     }
 
     return {
