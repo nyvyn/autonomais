@@ -11,7 +11,7 @@ describe("cli", () => {
 
         // Each test overwrites process arguments so store the original arguments
         originalArgv = process.argv;
-        processExitSpy = jest.spyOn(process, 'exit').mockImplementation((code) => { throw new Error('process.exit: ' + code); });
+        processExitSpy = jest.spyOn(process, "exit").mockImplementation((code) => { throw new Error("process.exit: " + code); });
     });
 
     afterEach(() => {
