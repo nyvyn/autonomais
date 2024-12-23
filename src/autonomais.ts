@@ -52,6 +52,8 @@ async function run(path: string | number, prompt?: string): Promise<void> {
         },
     });
 
+    console.log("You can exit the interactive session by typing '/quit' or '/exit'.");
+
     replServer.writer(prompt);
 
     replServer.on("exit", () => {
