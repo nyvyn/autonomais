@@ -58,11 +58,21 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
         // Signals calling a new agent,
         logger(`Calling agent: ${node.name}`);
 
+        const selectedTools: StructuredTool[] = [];
+        node.tools && node.tools.map(toolName => {
+            // find the tool in tools by comparing the string "tool" name and the classname in tools
+            tools.forEach(comparison => {
+                if (comparison.name.toLowerCase() === toolName.toLowerCase()) {
+                    selectedTools.push(comparison);
+                }
+            });
+        });
+
         let message: BaseMessage;
-        if (tools.length > 0) {
+        if (selectedTools.length > 0) {
             const toolChain = createFunctionCallingExecutor({
                 model,
-                tools,
+                tools: selectedTools,
             });
 
             const messages: BaseMessage[] = [];
