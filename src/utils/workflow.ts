@@ -6,7 +6,14 @@ import { StructuredTool } from "@langchain/core/tools";
 import { ChatOpenAI } from "@langchain/openai";
 import * as YAML from "yaml";
 
-export function parseWorkflow(source: string) {
+
+/**
+ *  Parses a workflow from a source string and returns an array of GraphNode objects.
+ *
+ *  @param {string} source - The source string representing the workflow in YAML format.
+ *  @return {GraphNode[]} - An array of GraphNode objects representing the workflow.
+ */
+export function parseWorkflow(source: string): GraphNode[] {
     const workflow = YAML.parse(source);
     logger("Running workflow:", workflow);
 
@@ -26,7 +33,18 @@ export function parseWorkflow(source: string) {
     return nodes;
 }
 
-export async function runWorkflow(nodes: GraphNode[]) {
+
+/**
+ *  Runs a workflow using a set of graph nodes and a prompt.
+ *
+ *  @param {GraphNode[]} nodes - An array of graph nodes representing the workflow.
+ *  @param {string} prompt - The prompt for the workflow.
+ *
+ *  @throws {Error} - Throws an error if the OpenAI API Key is not set.
+ *
+ *  @returns {Promise<string>} - Returns a Promise that resolves to the result of the workflow execution.
+ */
+export async function runWorkflow(nodes: GraphNode[], prompt: string): Promise<string> {
     const openAiApiKey = process.env.OPENAI_API_KEY;
     if (!Boolean(openAiApiKey)) {
         throw new Error("OpenAI API Key not set.");
@@ -49,5 +67,5 @@ export async function runWorkflow(nodes: GraphNode[]) {
         tools,
     });
 
-    return await runner.invoke(undefined);
+    return await runner.invoke(prompt);
 }
