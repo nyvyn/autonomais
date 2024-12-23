@@ -25,14 +25,14 @@
 
 Autonomais goal is to provide the absolute fastest and simplest way to coordinate multiple AI agents.
 
-Autonomais is a typescript npm library with a commercial-fiendly license.
+Autonomais is a typescript npm library with a commercial-friendly license.
 Autonomais also includes an interactive command-line interface for desktop workflows.
 
 ## How It Works
 
 Autonomais helps developers build flexible AI agent workflows.
 
-A workflow is a set of nodes with configured behavior and tools,
+A workflow is a set of nodes with configured behavior and tools
 that collaborate to achieve a provided goal or objective.
 
 Workflows are defined using three types of nodes:
@@ -79,7 +79,7 @@ editor:
 ```
 
 The first agent is expected to search the web and gather information with search and browser tools.
-The second is also an agent, but does not tools — relying on the LLM exclusively.
+The second is also an agent without tools — relying on the LLM exclusively.
 
 ### Exit nodes
 
@@ -109,7 +109,7 @@ ask-for-topic:
 
 researcher:
    instructions: Research useful topics on the provided
-   exit: true # this is optional, as the last node is an exit node by default
+   exit: true # this is optional, as the last node is an exit node by default.
 ```
 
 Note: Conditional nodes cannot use tools, only agent and exit nodes can.
@@ -209,8 +209,8 @@ ts-node ./src/autonomais.ts ./examples/calculator.yaml
 
 ## Contributing
 
-We welcome contributions from the community! If you are interested in helping to improve Autonomais, please follow
-these steps:
+We welcome contributions from the community! 
+If you are interested in helping to improve Autonomais, please follow these steps:
 
 1. **Fork the repository**: Make a copy of the project on your own account to work on.
 2. **Create a branch**: Create a branch in your fork for your changes.
