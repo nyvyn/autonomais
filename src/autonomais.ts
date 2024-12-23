@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import { BingSerpAPI } from "@langchain/community/dist/tools/bingserpapi";
 import { Calculator } from "@langchain/community/tools/calculator";
 import { AIMessage, BaseMessage, HumanMessage } from "@langchain/core/messages";
 import { StructuredTool } from "@langchain/core/tools";
@@ -41,7 +42,7 @@ async function run(path: string | number, prompt?: string): Promise<void> {
 
     let messages: BaseMessage[] = [];
 
-    function initializeContext() {
+    const initializeContext = () => {
         messages = [];
         if (prompt) messages.push(new HumanMessage(prompt));
     }
@@ -75,14 +76,32 @@ async function run(path: string | number, prompt?: string): Promise<void> {
     });
 }
 
-function colorize(text: string) {
+
+/**
+ *  Colorize the given text with green color.
+ *
+ *  @param {string} text - The text to be colorized.
+ *
+ *  @return {string} The colorized text.
+ */
+function colorize(text: string): string {
     return `\x1b[32m ${text} \x1b[0m`;
 }
 
-function makeTools() {
+
+/**
+ *  Makes the default set of tools for use by workflows executed on the command-line
+ *
+ *  @returns {StructuredTool[]} An array of tools.
+ */
+function makeTools(): StructuredTool[] {
     const tools: StructuredTool[] = [];
 
     tools.push(new Calculator());
+
+    if (Boolean(process.env.BING_API_KEY)) {
+        tools.push(new BingSerpAPI(process.env.BING_API_KEY));
+    }
 
     return tools;
 }
