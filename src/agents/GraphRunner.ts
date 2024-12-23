@@ -1,6 +1,11 @@
 import { BaseChatModel } from "@langchain/core/dist/language_models/chat_models";
-import { AIMessage, BaseMessage, HumanMessage } from "@langchain/core/messages";
-import { PromptTemplate } from "@langchain/core/prompts";
+import {
+  AIMessage,
+  BaseMessage,
+  HumanMessage,
+  SystemMessage,
+} from "@langchain/core/messages";
+import { ChatPromptTemplate, PromptTemplate } from "@langchain/core/prompts";
 import {
   Runnable,
   RunnableConfig,
@@ -128,16 +133,21 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
     // Signals calling a new agent,
     logger(`Calling agent: ${node.name}`);
 
+    const messages: BaseMessage[] = [];
+    messages.push(
+      new SystemMessage(
+        "You are to evalute a conversation and then follow a set of instructions.",
+      ),
+    );
+    messages.push(...state.messages);
+    messages.push(new HumanMessage({ content: node.instructions! }));
+
     let message: BaseMessage;
     if (node.tools?.length > 0) {
       const toolChain = createReactAgent({
         llm: model,
         tools: node.tools,
       });
-
-      const messages: BaseMessage[] = [];
-      messages.push(...state.messages);
-      messages.push(new HumanMessage({ content: node.instructions! }));
 
       const completion = await toolChain.invoke(
         {
@@ -155,14 +165,9 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
         ? new AIMessage(lastMessage.content)
         : new AIMessage("No response from AI.");
     } else {
-      const prompt = PromptTemplate.fromTemplate(`
-                You are to evalute a conversation and then follow a set of instructions.
-                This is the conversation so far: \"\"\"{messages}\"\"\".
-                Your instructions are: \"\"\"{instructions}\"\"\".
-            `);
+      const prompt = ChatPromptTemplate.fromMessages(messages);
       const completion = await prompt.pipe(model).invoke(
         {
-          messages: JSON.stringify(state.messages!),
           instructions: node.instructions!,
         },
         {
