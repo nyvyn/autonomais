@@ -140,7 +140,7 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
       ),
     );
     messages.push(...state.messages);
-    messages.push(new HumanMessage({ content: node.instructions! }));
+    messages.push(new HumanMessage(node.instructions!));
 
     let message: BaseMessage;
     if (node.tools?.length > 0) {
@@ -167,9 +167,7 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
     } else {
       const prompt = ChatPromptTemplate.fromMessages(messages);
       const completion = await prompt.pipe(model).invoke(
-        {
-          instructions: node.instructions!,
-        },
+        {},
         {
           ...config,
           runName: `Node Agent - ${node.name}`,
