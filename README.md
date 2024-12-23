@@ -19,6 +19,34 @@ Autonomais is built using a variety of modern technologies to ensure efficiency,
 
 ## Running the Product
 
+See the provided `helloworld.yaml` as an example.
+Running this should echo from the LLM "Hello World!" or similar.
+
+To run the demo, first, ensure you have built the project by running the build command specified in `package.json`:
+
+You can execute the example workflow using the CLI:
+
+```shell
+npm run build
+```
+
+After building the project, you can execute the example workflow using the npm script:
+
+```shell
+npm run demo
+```
+
+This command will execute the `src/cli.ts` script with the `examples/helloworld.yaml` workflow file.
+You can also run any other workflow file by replacing `examples/helloworld.yaml` with the path to your desired
+workflow file.
+
+To run with your own workflow, run the following command from your terminal,
+replacing `helloworld.yaml` with the path to your own agent configuration.
+
+```shell
+ts-node ./src/cli.ts ./examples/helloworld.yaml
+```
+
 ## Contributing
 
 We welcome contributions from the community! If you're interested in helping to improve Autonomais, please follow these steps:

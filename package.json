@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "build": "tsc",
-    "run example": "ts-node ./src/cli.ts ./examples/helloworld.yaml",
+    "demo": "ts-node ./src/cli.ts ./examples/helloworld.yaml",
     "test": "jest",
     "update scripts": "npx npm-check-updates -u"
   },
