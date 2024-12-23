@@ -95,4 +95,6 @@ Autonomais is built using a variety of modern technologies to ensure efficiency,
 
 ## License
 
-Autonomais is open-sourced software licensed under the MIT license. For more information, please see the [LICENSE](LICENSE) file in this repository.
+Autonomais is open-sourced software licensed under the MIT license.
+<br>
+For more information, please see the [LICENSE](LICENSE) file in this repository.
