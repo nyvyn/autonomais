@@ -17,14 +17,14 @@ import {
 } from "@langchain/core/runnables";
 import { StructuredTool } from "@langchain/core/tools";
 import {
+  Annotation,
   BaseCheckpointSaver,
+  CompiledGraph,
   END,
   START,
   StateGraph,
 } from "@langchain/langgraph";
-import { BinaryOperator } from "@langchain/langgraph/dist/channels/binop";
-import { CompiledGraph } from "@langchain/langgraph/dist/graph/graph";
-import { createFunctionCallingExecutor } from "@langchain/langgraph/prebuilt";
+import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import { GraphNode } from "../types";
 import { logger, parseWorkflow } from "../utils";
 import { END_NODE } from "../utils/variables";
@@ -68,7 +68,7 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
    *
    *  @param {Object} params - The parameters object.
    *  @param {BaseCheckpointSaver} params.checkpoint - Optional checkpoint saver for the graph.
-   *  @param {string} params.config - The yaml configuration of the workflow.
+   *  @param {string} params.config - The Yaml configuration of the workflow.
    *  @param {BaseChatModel} params.model - The base language model.
    *  @param {StructuredTool[]} params.tools - An array of tools required by the workflow.
    *
@@ -139,8 +139,8 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
 
     let message: BaseMessage;
     if (node.tools?.length > 0) {
-      const toolChain = createFunctionCallingExecutor({
-        model,
+      const toolChain = createReactAgent({
+        llm: model,
         tools: node.tools,
       });
 
@@ -311,29 +311,45 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
       }
     });
 
-    const schema: {
-      lastNode: {
-        reducer: BinaryOperator<string, string> | null;
-        default?: () => string;
-      };
-      messages: {
-        reducer: BinaryOperator<BaseMessage[], BaseMessage[]> | null;
-        default?: () => BaseMessage[];
-      };
-    } = {
-      lastNode: {
-        reducer: null,
-      },
-      messages: {
-        reducer: (x: BaseMessage[], y: BaseMessage[]) => x.concat(y),
+    const schema = Annotation.Root({
+      lastNode: Annotation<string>,
+      messages: Annotation<BaseMessage[]>({
+        reducer: (left: BaseMessage[], right: BaseMessage | BaseMessage[]) => {
+          if (Array.isArray(right)) {
+            return left.concat(right);
+          }
+          return left.concat([right]);
+        },
         default: () => [],
-      },
-    };
+      }),
+    });
+
+    // const schema: {
+    //   lastNode: {
+    //     reducer: BinaryOperator<string, string> | null;
+    //     default?: () => string;
+    //   };
+    //   messages: {
+    //     reducer: BinaryOperator<BaseMessage[], BaseMessage[]> | null;
+    //     default?: () => BaseMessage[];
+    //   };
+    // } = {
+    //   lastNode: {
+    //     reducer: null,
+    //   },
+    //   messages: {
+    //     reducer: (x: BaseMessage[], y: BaseMessage[]) => x.concat(y),
+    //     default: () => [],
+    //   },
+    // };
 
     // Define a new graph
-    const workflow = new StateGraph<AgentState, Partial<AgentState>, string>({
-      channels: schema,
-    });
+    const workflow = new StateGraph<
+      typeof schema.spec,
+      AgentState,
+      Partial<AgentState>,
+      string
+    >(schema);
 
     // Define the nodes
     nodes.forEach((node) => {
