@@ -40,7 +40,7 @@ async function run(path: string | number, prompt?: string): Promise<void> {
 
     const completion = await runWorkflow(nodes, messages);
     messages.push(new AIMessage(completion));
-    console.log(colorizeGreen(`AI: ${completion}`));
+    console.log(colorize(`AI: ${completion}`));
 
     const replServer = repl.start({
         prompt: "→ ",
@@ -68,7 +68,7 @@ async function run(path: string | number, prompt?: string): Promise<void> {
     });
 }
 
-function colorizeGreen(text: string) {
+function colorize(text: string) {
     return `\x1b[32m ${text} \x1b[0m`;
 }
 
