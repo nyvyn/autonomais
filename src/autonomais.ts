@@ -21,7 +21,7 @@ async function run(path: string | number, prompt?: string): Promise<void> {
     logger(nodes);
     const completion = await runWorkflow(nodes, prompt);
 
-    console.log(completion);
+    console.log("AI: " + completion);
     console.log();
     console.log("Workflow complete");
 }
