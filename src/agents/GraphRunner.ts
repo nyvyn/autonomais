@@ -165,7 +165,7 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
         : new AIMessage("No response from AI.");
     } else {
       const prompt = PromptTemplate.fromTemplate(`
-                You are a helpful AI assistant.
+                You are to evalute a conversation and then follow a set of instructions.
                 This is the conversation so far: \"\"\"{messages}\"\"\".
                 Your instructions are: \"\"\"{instructions}\"\"\".
             `);
