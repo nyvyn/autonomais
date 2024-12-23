@@ -24,6 +24,16 @@
 
 Autonomais goal is to provide the absolute fastest and simplest way to coordinate multiple AI agents.
 
+## Key Concepts
+
+Autonomais is built around a few key concepts that make it powerful and easy to use:
+
+- **Agent**: A self-contained AI entity capable of performing tasks and making decisions based on input data.
+- **Workflow**: A sequence of tasks assigned to agents, defining a process for achieving a specific goal.
+- **Task**: A single unit of work or instruction that an agent can execute.
+- **Agent Coordination**: The process by which agents communicate and collaborate to complete workflows efficiently.
+- **Adaptability**: The ability of agents to adjust their behavior based on changes in their environment or workflow.
+
 Autonomais is a typescript npm library with a commercial-fiendly license.
 Autonomais also includes an interactive command-line interface.
 
