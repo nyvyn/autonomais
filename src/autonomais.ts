@@ -37,9 +37,14 @@ async function run(path: string | number, prompt?: string): Promise<void> {
     const replServer = repl.start({
         prompt: "You: ",
         useColors: true,
-        eval: async (cmd, context, filename, callback) => {
+        eval: async (cmd, _, __, callback) => {
+            const trimmedCmd = cmd.trim();
+            if (trimmedCmd === '/quit' || trimmedCmd === '/exit') {
+                replServer.close();
+                return;
+            }
             try {
-                const completion = await runWorkflow(nodes, cmd);
+                const completion = await runWorkflow(nodes, trimmedCmd);
                 callback(null, `AI: ${completion}`);
             } catch (error) {
                 callback(error, "Error running workflow.");
