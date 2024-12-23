@@ -4,6 +4,13 @@
 
 **Effortlessly simple agent-based workflows!**
 
+[![GitHub Repo stars](https://img.shields.io/github/stars/nyvyn/autonomais)](https://github.com/nyvyn/autonomais)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+
+</div>
+
+<hr>
+
 ## Table of Contents
 
 - [Why Autonomais?](#why-autonomais)
@@ -11,13 +18,6 @@
 - [Contributing](#contributing)
 - [Technologies Used](#technologies-used)
 - [License](#license)
-
-<hr>
-
-[![GitHub Repo stars](https://img.shields.io/github/stars/nyvyn/autonomais)](https://github.com/nyvyn/autonomais)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
-
-</div>
 
 ## Why Autonomais?
 
