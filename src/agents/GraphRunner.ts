@@ -44,7 +44,7 @@ export type GraphRunnerInput = {
 export type GraphRunnerOutput = string;
 
 /**
- *  A Graph Runner executes a workflow.
+ *  A Graph Runner executes a provided workflow.
  *  Construction a runner with make().
  *
  *  @extends Runnable
