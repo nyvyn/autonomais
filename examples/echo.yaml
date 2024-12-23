@@ -2,4 +2,4 @@
 
 ---
 echo:
-  instructions: Repeat back what the user said, or 'Hello World' if none.
+  instructions: "Repeat back what the user said, or 'Hello World' if none."
