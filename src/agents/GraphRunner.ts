@@ -265,7 +265,8 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
 
         const schema: {
             lastNode: {
-                value: null;
+                value: BinaryOperator<unknown> | null;
+                default?: () => unknown;
             };
             messages: {
                 value: BinaryOperator<unknown> | null;
