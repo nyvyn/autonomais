@@ -11,7 +11,7 @@
 
 Autonomais is a typeScript library created
 to streamline the deployment and coordination of multiple AI agents within your applications.
-Crafted with simplicity and speed in mind,
+Crafted with simplicity and efficiency in mind,
 Autonomais helps developers build sophisticated AI agent workflows with minimal overhead.
 
 ## Table of Contents
@@ -118,9 +118,9 @@ They represent distinct steps or operations within a workflow and come in three 
 2. **Conditional Nodes**: Conditional nodes act as decision points within your workflow, determining the flow based on
    certain conditions. They help to dynamically alter the path of execution based on the outcome of previous nodes or
    external factors.
-3. **Exit Nodes**: As the name suggests, exit nodes mark the completion of a workflow. They ensure the workflow
-   terminates gracefully once the desired outcome is achieved. Though typically the last node in your workflow, they can
-   also be interspersed to handle various termination conditions or outcomes.
+3. **Exit Nodes**: As the name suggests, exit nodes are agent nodes that exit upon completion of their work.
+   Though typically the last node in your workflow,
+   they can also be interspersed to handle various termination conditions or outcomes.
 
 ### Node Characteristics
 
@@ -251,7 +251,7 @@ import { GraphNode } from "autonomais/types";
 const nodes: GraphNode[] = [
    {
       name: "hello-world",
-      instructions: "Repeat back what the user said, or Hello World if none."
+      instructions: "Repeat back what the user said, or Hello World if none.",
       tools: [tools]
    }
 ];
