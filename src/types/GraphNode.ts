@@ -9,7 +9,6 @@ export type GraphNode = {
   tools?: StructuredTool[];
   state?: Array<{
     name: string;
-    value: string;
     description: string;
   }>;
 };
