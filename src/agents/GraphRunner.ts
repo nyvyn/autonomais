@@ -1,15 +1,6 @@
 import { BaseChatModel } from "@langchain/core/dist/language_models/chat_models";
-import {
-  AIMessage,
-  BaseMessage,
-  HumanMessage,
-  SystemMessage,
-} from "@langchain/core/messages";
-import {
-  ChatPromptTemplate,
-  MessagesPlaceholder,
-  PromptTemplate,
-} from "@langchain/core/prompts";
+import { AIMessage, BaseMessage, HumanMessage } from "@langchain/core/messages";
+import { PromptTemplate } from "@langchain/core/prompts";
 import {
   Runnable,
   RunnableConfig,
@@ -145,8 +136,8 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
       });
 
       const messages: BaseMessage[] = [];
-      messages.push(new HumanMessage({ content: node.instructions! }));
       messages.push(...state.messages);
+      messages.push(new HumanMessage({ content: node.instructions! }));
 
       const completion = await toolChain.invoke(
         {
@@ -222,18 +213,15 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
     });
     if (node.isExit) conditionalAgents.push(END_NODE);
 
-    const prompt = ChatPromptTemplate.fromMessages([
-      new SystemMessage(
-        `Respond with the best node, from a list of possible nodes, closely following the provided instructions.`,
-      ),
-      new MessagesPlaceholder("messages"),
-      new HumanMessage(`Your instructions are: \"\"\"{instructions}\"\"\".`),
-      new HumanMessage(`Following the instructions, reply with one (and only one) of the following nodes: 
-            ${conditionalAgents.join(", ")}.`),
-    ]);
+    const prompt = PromptTemplate.fromTemplate(`
+                You are to select the next best mode from a list of possible nodes..
+                This is the conversation so far: \"\"\"{messages}\"\"\".
+                Your instructions are: \"\"\"{instructions}\"\"\".
+                Following the instructions, reply with one (and only one) of the following nodes: ${conditionalAgents.join(", ")}.
+            `);
     const completion = await prompt.pipe(model).invoke(
       {
-        messages: state.messages,
+        messages: JSON.stringify(state.messages!),
         instructions: node.instructions!,
       },
       {
