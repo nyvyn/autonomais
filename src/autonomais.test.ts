@@ -51,5 +51,5 @@ async function runCommand(...args: string[]) {
     ];
 
     // Require the yargs CLI script
-    return require("./cli");
+    return require("./autonomais");
 }
