@@ -5,7 +5,6 @@ import { BaseLanguageModel } from "@langchain/core/dist/language_models/base";
 import { AIMessage, BaseMessage, HumanMessage } from "@langchain/core/messages";
 import { PromptTemplate } from "@langchain/core/prompts";
 import { Runnable, RunnableConfig, RunnableLambda } from "@langchain/core/runnables";
-import { StructuredTool } from "@langchain/core/tools";
 import { END, StateGraph } from "@langchain/langgraph";
 import { createFunctionCallingExecutor } from "@langchain/langgraph/prebuilt";
 import { Pregel } from "@langchain/langgraph/pregel";
@@ -37,15 +36,13 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
         this.graph = input.graph;
     }
 
-    public static async make({model, nodes, tools}: Readonly<{
+    public static async make({model, nodes}: Readonly<{
         model: BaseLanguageModel,
         nodes: GraphNode[],
-        tools: StructuredTool[],
     }>) {
         const graph = await GraphRunner.prepareGraph(
             model,
             nodes,
-            tools,
         );
         return new GraphRunner({
             graph
@@ -53,26 +50,16 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
     }
 
     private static callAgent = async (
-        state: AgentState, node: GraphNode, tools: StructuredTool[], model: BaseLanguageModel, config?: RunnableConfig
+        state: AgentState, node: GraphNode, model: BaseLanguageModel, config?: RunnableConfig
     ): Promise<AgentState> => {
         // Signals calling a new agent,
         logger(`Calling agent: ${node.name}`);
 
-        const selectedTools: StructuredTool[] = [];
-        node.tools && node.tools.map(toolName => {
-            // find the tool in tools by comparing the string "tool" name and the classname in tools
-            tools.forEach(comparison => {
-                if (comparison.name.toLowerCase() === toolName.toLowerCase()) {
-                    selectedTools.push(comparison);
-                }
-            });
-        });
-
         let message: BaseMessage;
-        if (selectedTools.length > 0) {
+        if (node.tools?.length > 0) {
             const toolChain = createFunctionCallingExecutor({
                 model,
-                tools: selectedTools,
+                tools: node.tools,
             });
 
             const messages: BaseMessage[] = [];
@@ -174,7 +161,6 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
     private static async prepareGraph(
         model: BaseLanguageModel,
         nodes: GraphNode[],
-        tools: StructuredTool[],
     ): Promise<Pregel> {
         nodes.forEach((node) => {
             if (!node.name) {
@@ -215,7 +201,7 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
                 workflow.addNode(
                     node.name!,
                     RunnableLambda.from(
-                        (state: AgentState, config) => GraphRunner.callAgent(state, node, tools, model, config),
+                        (state: AgentState, config) => GraphRunner.callAgent(state, node, model, config),
                     )
                 );
             }
