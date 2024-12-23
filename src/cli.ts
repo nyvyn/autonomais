@@ -10,14 +10,11 @@ function runWorkflow(path: string | number) {
     parseWorkflow(contents);
 }
 
-yargs(hideBin(process.argv))
-    .command("$0", "The default command", () => {
+yargs(hideBin(process.argv)).command("$0", "first argument should be path to workflow yaml file", () => {
 }, (argv: { _: (string | number)[]; }) => {
     runWorkflow(argv._[0]);
-    })
-    .option("verbose", {
-        alias: "v",
-        type: "boolean",
-        description: "Run with verbose logging"
-    })
-    .parse();
+}).option("verbose", {
+    alias: "v",
+    type: "boolean",
+    description: "Run with verbose logging"
+}).parse();
