@@ -20,6 +20,7 @@ async function run(path: string | number, prompt?: string): Promise<void> {
     console.log(`You're running Autonomais in ${process.cwd()}.`);
     console.log("You can exit the interactive session by typing '/quit' or '/exit'.");
     console.log("────────────────────────────────────────────────────────────────────────");
+    console.log();
 
     if (!path) {
         console.error("No workflow path given");
