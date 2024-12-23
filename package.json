@@ -1,6 +1,6 @@
 {
   "name": "autonomais",
-  "version": "0.0.0-development",
+  "version": "0.0.0-semantic-release",
   "description": "An approachable way to define multiple, collaborative AI agents",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -41,6 +41,7 @@
   "plugins": [
     "@semantic-release/commit-analyzer",
     "@semantic-release/release-notes-generator",
+    "@semantic-release/changelog",
     "@semantic-release/npm",
     "@semantic-release/git"
   ],
