@@ -1,23 +1,26 @@
+<div align="center">
+
 # Autonomais
 
 **Effortlessly simple agent-based workflows!**
 
-## What is Autonomais?
+<hr>
+
+[![GitHub Repo stars](https://img.shields.io/github/stars/nyvyn/autonomais)](https://github.com/nyvyn/autonomais)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+
+</div>
+
+## Why Autonomais?
 
 Autonomais is a framework designed to facilitate the creation and management of AI agents 
 that can work collaboratively on complex tasks. It allows users to define workflows for agents 
-using simple YAML configuration files. These workflows can include a variety of tasks such as processing data, interacting with APIs, and communicating with other agents. The goal of Autonomais is to make it easier to build systems where multiple AI agents can work together to achieve goals that would be difficult for a single agent to accomplish alone.
+using simple YAML configuration files. 
+These workflows can include a variety of tasks such as processing data, interacting with APIs, 
+and communicating with other agents. The goal of Autonomais is to make it easier to build systems 
+where multiple AI agents can work together to achieve goals that are difficult for a single agent to accomplish alone.
 
-## Technologies Used
-
-Autonomais is built using a variety of modern technologies to ensure efficiency, reliability, and ease of use:
-
-- **Langchain**: A set of libraries for working with language models and graph-based data structures in AI applications.
-- **LangGraph**: A library for creating and managing graph-based data structures, facilitating complex interactions between AI agents.
-- **Yargs**: A Node.js library for building command-line tools with powerful argument parsing.
-- **Jest**: A delightful JavaScript Testing Framework with a focus on simplicity, used for unit testing.
-
-## Running the Product
+## Getting Started
 
 See the provided `helloworld.yaml` as an example.
 Running this should echo from the LLM "Hello World!" or similar.
@@ -71,6 +74,16 @@ npm run demo
 This command will run the `src/cli.ts` script with the `examples/helloworld.yaml` workflow file. 
 You can also run any other workflow file by replacing `examples/helloworld.yaml` 
 with the path to your desired workflow file.
+
+
+## Technologies Used
+
+Autonomais is built using a variety of modern technologies to ensure efficiency, reliability, and ease of use:
+
+- **Langchain**: A set of libraries for working with language models and graph-based data structures in AI applications.
+- **LangGraph**: A library for creating and managing graph-based data structures, facilitating complex interactions between AI agents.
+- **Yargs**: A Node.js library for building command-line tools with powerful argument parsing.
+- **Jest**: A delightful JavaScript Testing Framework with a focus on simplicity, used for unit testing.
 
 ## License
 
