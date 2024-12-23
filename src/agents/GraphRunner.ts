@@ -209,7 +209,7 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
     // If this node defined links, then use those,
     // otherwise, use all possible nodes (excepting this one).
     const linkNames = [];
-    const possible = node.links ? node.links : nodes;
+    const possible = node.links && node.links.length > 0 ? node.links : nodes;
     possible.forEach((test: GraphNode) => {
       if (test.name && test.name !== node.name) {
         linkNames.push(test.name);
