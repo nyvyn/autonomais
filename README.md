@@ -9,7 +9,7 @@
 
 </div>
 
-<hr>
+<br><br>
 
 ## Table of Contents
 
