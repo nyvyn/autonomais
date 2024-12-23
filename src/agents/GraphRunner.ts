@@ -224,11 +224,11 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
 
     const prompt = ChatPromptTemplate.fromMessages([
       new SystemMessage(
-        `You have been called to make a decision based on the context of the conversation.`,
+        `Respond with the best node, from a list of possible nodes, closely following the provided instructions.`,
       ),
       new MessagesPlaceholder("messages"),
       new HumanMessage(`Your instructions are: \"\"\"{instructions}\"\"\".`),
-      new HumanMessage(`Following the instructions, reply with one (and only one) of the following: 
+      new HumanMessage(`Following the instructions, reply with one (and only one) of the following nodes: 
             ${conditionalAgents.join(", ")}.`),
     ]);
     const completion = await prompt.pipe(model).invoke(
