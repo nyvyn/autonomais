@@ -6,6 +6,7 @@ import { AIMessage, BaseMessage, HumanMessage } from "@langchain/core/messages";
 import { PromptTemplate } from "@langchain/core/prompts";
 import { Runnable, RunnableConfig, RunnableLambda } from "@langchain/core/runnables";
 import { END, StateGraph } from "@langchain/langgraph";
+import { BinaryOperator } from "@langchain/langgraph/dist/channels/binop";
 import { createFunctionCallingExecutor } from "@langchain/langgraph/prebuilt";
 import { Pregel } from "@langchain/langgraph/pregel";
 
@@ -171,21 +172,21 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
             }
         });
 
-        const agentState = {
+        const schema: {
+            messages: {
+                value: BinaryOperator<unknown> | null;
+                default?: () => unknown;
+            }
+        } = {
             messages: {
                 value: (x: BaseMessage[], y: BaseMessage[]) => x.concat(y),
                 default: () => [],
-            },
-            viewstate: {
-                value: (x: Record<any, any>, y: Record<any, any>) => ({...x, ...y}),
-                default: () => {
-                },
             },
         };
 
         // Define a new graph
         const workflow = new StateGraph({
-            channels: agentState,
+            channels: schema,
         });
 
         // Define the nodes
@@ -209,12 +210,12 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
 
         // Define the edges between the nodes
         nodes.forEach((node, index) => {
-            // If this is the first agent, set it as the entry point
+            // If this is the first agent, set it as the entry point.
             if (index === 0) {
                 workflow.setEntryPoint(node.name!);
             }
 
-            // If this is the last node, set it as the finish point
+            // If this is the last node, set it as the finish point.
             if (index === nodes.length - 1) {
                 workflow.setFinishPoint(node.name!);
             }
@@ -247,7 +248,7 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
 
             } else {
 
-                // If not the last node, add the edge to the next node
+                // If not the last node, add the edge to the next node.
                 if (index < nodes.length - 1) {
                     if (node.isExit) {
                         workflow.addEdge(node.name!, END);
