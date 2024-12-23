@@ -44,6 +44,20 @@ export function parseWorkflow(config: string, tools: StructuredTool[] = []): Gra
         nodes.push(node);
     });
 
+    // Update each node's links with the corresponding GraphNode objects
+    nodes.forEach((node) => {
+        const prop = workflow[node.name];
+        if (prop.links) {
+            node.links = prop.links.map((linkName: string) => {
+                const linkedNode = nodes.find(n => n.name === linkName);
+                if (!linkedNode) {
+                    throw new Error(`Linked node \`${linkName}\` not found.`);
+                }
+                return linkedNode;
+            });
+        }
+    });
+
     return nodes;
 }
 
