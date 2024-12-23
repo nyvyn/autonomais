@@ -2,8 +2,10 @@ import { GraphRunner } from "@/agents";
 import { GraphNode } from "@/types/GraphNode";
 import { logger } from "@/utils/logger";
 import { GPT4_TEXT } from "@/utils/variables";
+import { BingSerpAPI } from "@langchain/community/tools/bingserpapi";
 import { StructuredTool } from "@langchain/core/tools";
 import { ChatOpenAI } from "@langchain/openai";
+import * as process from "node:process";
 import * as YAML from "yaml";
 
 
@@ -24,8 +26,8 @@ export function parseWorkflow(source: string): GraphNode[] {
         const node: GraphNode = {
             name: key,
             instructions: prop.instructions,
-            isConditional: prop.isConditional || false,
-            isTerminal: prop.isTerminal || false,
+            isConditional: prop.conditional || false,
+            isExit: prop.exit || false,
         };
         nodes.push(node);
     });
@@ -44,7 +46,7 @@ export function parseWorkflow(source: string): GraphNode[] {
  *
  *  @returns {Promise<string>} - Returns a Promise that resolves to the result of the workflow execution.
  */
-export async function runWorkflow(nodes: GraphNode[], prompt: string): Promise<string> {
+export async function runWorkflow(nodes: GraphNode[], prompt?: string): Promise<string> {
     const openAiApiKey = process.env.OPENAI_API_KEY;
     if (!Boolean(openAiApiKey)) {
         throw new Error("OpenAI API Key not set.");
@@ -60,6 +62,11 @@ export async function runWorkflow(nodes: GraphNode[], prompt: string): Promise<s
     });
 
     const tools: StructuredTool[] = [];
+
+    // If Bing API key exists, then add BingSerp tool
+    if (Boolean(process.env.BING_API_KEY)) {
+        tools.push(new BingSerpAPI(process.env.BING_API_KEY));
+    }
 
     const runner = await GraphRunner.make({
         model,
