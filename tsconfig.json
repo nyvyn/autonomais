@@ -1,11 +1,17 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "target": "es2019",
+    "moduleResolution": "bundler",
+    "target": "esnext",
     "declaration": true,
-    "outDir": "./dist"
+    "outDir": "./dist",
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    }
   },
   "include": [
-    "src/**/*"
+    "./src/**/*.ts"
   ]
 }
