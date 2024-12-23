@@ -2,7 +2,7 @@
 
 # Autonomais
 
-**Effortlessly simple agent-based workflows!**
+**Effortlessly simple agent-based workflows**
 
 [![GitHub Repo stars](https://img.shields.io/github/stars/nyvyn/autonomais)](https://github.com/nyvyn/autonomais)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
