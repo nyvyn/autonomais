@@ -1,6 +1,7 @@
 let VERBOSE_LOGGING = false;
 
-const stringToBoolean = (string) => (string === "false" ? false : !!string);
+const stringToBoolean = (source: string) =>
+  source === "false" ? false : !!source;
 
 export function enableVerboseLogging(enabled: boolean = true) {
   VERBOSE_LOGGING = enabled;
