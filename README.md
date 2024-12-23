@@ -120,7 +120,7 @@ Two nodes defined in succession are a chain. That is, no conditional or exit nod
 ```yaml
 researcher:
    instructions: "Your role is to reseach AI topics"
-   tools: [ "bing-search", "web-browser" ]
+   tools: [ "bing-search" ]
 
 editor:
    instructions: "Edit the research into a compelling narrative"
