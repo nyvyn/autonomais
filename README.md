@@ -9,7 +9,10 @@
 
 </div>
 
-<br><br>
+Autonomais is a typeScript library created
+to streamline the deployment and coordination of multiple AI agents within your applications.
+Crafted with simplicity and speed in mind,
+Autonomais helps developers build sophisticated AI agent workflows with minimal overhead.
 
 ## Table of Contents
 
@@ -17,6 +20,7 @@
 - [Getting Started](#getting-started)
 - [Setup](#setup)
 - [Key Concepts](#key-concepts)
+- [Understanding Nodes](#understanding-nodes)
 - [How It Works](#how-it-works)
 - [Technologies Used](#technologies-used)
 - [Roadmap](#roadmap)
@@ -25,25 +29,40 @@
 
 ## Why Autonomais?
 
-Autonomais goal is to provide the absolute fastest and simplest way to coordinate multiple AI agents.
+Autonomais is designed with the principles of efficiency and simplicity at its core,
+offering a straightforward way to integrate multiple AI agents into your projects.
+Whether you're developing intelligent conversational bots, automating data analysis,
+or exploring new AI-driven innovations, Autonomais serves as the backbone,
+simplifying the orchestration of complex agent interactions.
 
-Autonomais is a typescript npm library with a commercial-friendly license.
-Autonomais also includes an interactive command-line interface for desktop workflows.
+Key Features:
 
+* Simplicity: Easy to integrate and use with your existing TypeScript projects.
+* Flexibility: Accommodates various workflows, from simple task automation to complex agent collaboration.
+* Command-line Interface: An optional interactive CLI for quick and direct control of workflows on the desktop.
+* Open Source: Licensed under MIT, encouraging both personal and commercial use.
 
 ## Getting Started
 
+Kickstart your journey with Autonomais by integrating it into your projects:
+
 1. As an npm package:
+
+   Install Autonomais as a dependency in your project:
 
    ```shell
    npm i autonomais
    ```
 
-2. Via the command-line:
+2. Via the command-line interface:
+
+   Experiment and run workflows directly through the command line:
 
    ```shell
    ts-node ./src/autonomais.ts ./examples/echo.yaml
    ```
+
+Follow the sections below to dive deeper into setting up and using Autonomais in your projects.
 
 ## Setup
 
@@ -80,18 +99,48 @@ ts-node ./src/autonomais.ts ./examples/calculator.yaml
 
 ## Key Concepts
 
-Autonomais helps developers build flexible AI agent workflows.
+Autonomais leverages a powerful yet simple concept of workflows to orchestrate AI agent interactions. This section
+breaks down the main components that enable you to build versatile and efficient workflows.
 
-A workflow is a set of nodes with configured behavior and tools
-that collaborate to achieve a provided goal or objective.
+### Workflows
 
-Workflows are defined using three types of nodes:
+At the heart of Autonomais is the **workflow**—a structured sequence of operations determined by nodes. Each workflow
+encapsulates a goal, guiding multiple agents through a series of tasks to achieve this goal efficiently.
 
-- **Agent Nodes** — agents can optionally use defined tools.
-- **Conditional Nodes** — conditionals select the next best node.
-- **Exit Nodes** — a special case of Agent Nodes that terminate after completion.
+### Nodes
 
-All nodes follow their configured instructions and have access to conversation history.
+Nodes are the building blocks of a workflow.
+They represent distinct steps or operations within a workflow and come in three types:
+
+1. **Agent Nodes**: These are the primary actors within your workflow, carrying out tasks or actions. An agent node can
+   be as straightforward as returning input (echo) or as complex as performing data analysis or generating content based
+   on specified instructions.
+2. **Conditional Nodes**: Conditional nodes act as decision points within your workflow, determining the flow based on
+   certain conditions. They help to dynamically alter the path of execution based on the outcome of previous nodes or
+   external factors.
+3. **Exit Nodes**: As the name suggests, exit nodes mark the completion of a workflow. They ensure the workflow
+   terminates gracefully once the desired outcome is achieved. Though typically the last node in your workflow, they can
+   also be interspersed to handle various termination conditions or outcomes.
+
+### Node Characteristics
+
+- **Instructions**: Directives given to agent nodes, outlining the task to be performed. For example, "Repeat back what
+  the user said, or say Hello World if none."
+- **Tools**: An optional attribute for agent nodes, specifying any external tools or services employed to achieve the
+  node's task.
+- **Chaining**: Successive nodes without intervening conditional or exit nodes are considered a chain, facilitating
+  seamless task transitions within the workflow.
+- **Conditional Logic**: Employed within conditional nodes to determine the next steps based on specific criteria,
+  ensuring the workflow adapts to varying conditions.
+
+### Constructing a Workflow
+
+Workflows are defined through a YAML or JSON configuration, which outlines the nodes and their relationships.
+This structure allows for flexible and dynamic workflow designs to address complex agent coordination challenges.
+
+## Understanding Nodes
+
+Important! All three types of nodes follow their configured instructions and have access to conversation history.
 
 ### Agent nodes
 
@@ -181,7 +230,7 @@ which in turn are passed as an array to `GraphRunner`.
 
 ```typescript
 // Load the yaml file
-import { parseWorkflow, runWorkflow } from "./workflow";
+import { parseWorkflow, runWorkflow } from "autonomais/utils";
 
 const config = fs.readFileSync(path.toString(), "utf-8");
 
@@ -197,6 +246,8 @@ runWorkflow(nodes, messages);
 
 ```typescript
 // Tools are defined separately and passed to Agent and Exit nodes.
+import { GraphNode } from "autonomais/types";
+
 const nodes: GraphNode[] = [
    {
       name: "hello-world",
