@@ -11,7 +11,6 @@ import {
   RunnableConfig,
   RunnableLambda,
 } from "@langchain/core/runnables";
-import { StructuredTool } from "@langchain/core/tools";
 import {
   Annotation,
   BaseCheckpointSaver,
@@ -22,7 +21,7 @@ import {
 } from "@langchain/langgraph";
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import { GraphNode } from "../types";
-import { logger, parseWorkflow } from "../utils";
+import { logger } from "../utils";
 import { END_NODE } from "../utils/variables";
 
 export type AgentState = {
@@ -57,36 +56,6 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
     });
 
     this.graph = input.graph;
-  }
-
-  /**
-   *  Creates a GraphRunner instance from a workflow.
-   *
-   *  @param {Object} params - The parameters object.
-   *  @param {BaseCheckpointSaver} params.checkpoint - Optional checkpoint saver for the graph.
-   *  @param {string} params.config - The Yaml configuration of the workflow.
-   *  @param {BaseChatModel} params.model - The base language model.
-   *  @param {StructuredTool[]} params.tools - An array of tools required by the workflow.
-   *
-   *  @return {Promise<GraphRunner>} - A promise that resolves with a GraphRunner instance.
-   */
-  public static async fromWorkflow({
-    checkpoint,
-    config,
-    model,
-    tools,
-  }: Readonly<{
-    checkpoint?: BaseCheckpointSaver;
-    config: string;
-    model: BaseChatModel;
-    tools?: StructuredTool[];
-  }>): Promise<GraphRunner> {
-    const nodes = parseWorkflow(config, tools);
-    return GraphRunner.make({
-      model,
-      nodes,
-      checkpoint,
-    });
   }
 
   /**
@@ -166,13 +135,10 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
         : new AIMessage("No response from AI.");
     } else {
       const prompt = ChatPromptTemplate.fromMessages(messages);
-      const completion = await prompt.pipe(model).invoke(
-        {},
-        {
-          ...config,
-          runName: `Node Agent - ${node.name}`,
-        },
-      );
+      const completion = await prompt.pipe(model).invoke(undefined, {
+        ...config,
+        runName: `Node Agent - ${node.name}`,
+      });
 
       message = completion.content
         ? new AIMessage(completion.content.toString())
