@@ -15,8 +15,8 @@
 
 - [Why Autonomais?](#why-autonomais)
 - [Getting Started](#getting-started)
-- [How It Works](#how-it-works)
 - [Setup](#setup)
+- [How It Works](#how-it-works)
 - [Contributing](#contributing)
 - [Technologies Used](#technologies-used)
 - [License](#license)
@@ -27,6 +27,54 @@ Autonomais goal is to provide the absolute fastest and simplest way to coordinat
 
 Autonomais is a typescript npm library with a commercial-friendly license.
 Autonomais also includes an interactive command-line interface for desktop workflows.
+
+
+## Getting Started
+
+1. As an npm package:
+
+   ```shell
+   npm i autonomais
+   ```
+
+2. Via the command-line:
+
+   ```shell
+   ts-node ./src/autonomais.ts ./examples/echo.yaml
+   ```
+
+## Setup
+
+### NPM Package
+
+Set an environment variable for the OpenAI API: `OPENAI_API_KEY`.
+
+### Command-line
+
+Set an environment variable for the OpenAI API: `OPENAI_API_KEY`.
+
+Build the code using the build command in `package.json`:
+
+```shell
+npm run build
+```
+
+After building the project, you can execute the example interactive command-line workflow using the npm script:
+
+```shell
+npm run demo
+```
+
+This command will execute the `src/autonomais.ts` script with the `examples/calculator.yaml` workflow file.
+You can also run any other workflow file by replacing `examples/calculator.yaml` with the path to your desired
+workflow file.
+
+To run with your own workflow, run the following command from your terminal,
+replacing `calculator.yaml` with the path to your own agent configuration.
+
+```shell
+ts-node ./src/autonomais.ts ./examples/calculator.yaml
+```
 
 ## How It Works
 
@@ -158,53 +206,6 @@ const runner = GraphRunner.make({model, nodes});
 
 // Messages are LangChain BaseMessage(s).
 runner.invoke({messages});
-```
-
-## Getting Started
-
-1. As an npm package:
-
-   ```shell
-   npm i autonomais
-   ```
-
-2. Via the command-line:
-
-   ```shell
-   ts-node ./src/autonomais.ts ./examples/echo.yaml
-   ```
-
-## Setup
-
-### NPM Package
-
-Set an environment variable for the OpenAI API: `OPENAI_API_KEY`.
-
-### Command-line
-
-Set an environment variable for the OpenAI API: `OPENAI_API_KEY`.
-
-Build the code using the build command in `package.json`:
-
-```shell
-npm run build
-```
-
-After building the project, you can execute the example interactive command-line workflow using the npm script:
-
-```shell
-npm run demo
-```
-
-This command will execute the `src/autonomais.ts` script with the `examples/calculator.yaml` workflow file.
-You can also run any other workflow file by replacing `examples/calculator.yaml` with the path to your desired
-workflow file.
-
-To run with your own workflow, run the following command from your terminal,
-replacing `calculator.yaml` with the path to your own agent configuration.
-
-```shell
-ts-node ./src/autonomais.ts ./examples/calculator.yaml
 ```
 
 ## Contributing
