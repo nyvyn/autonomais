@@ -22,7 +22,7 @@ import { END_NODE } from "../utils/variables";
 export type AgentState = {
   lastNode?: string;
   messages: BaseMessage[];
-  sharedState: SharedState;
+  state: Record<string, string>;
 };
 
 export interface GraphRunnerConfig extends RunnableConfig {
@@ -133,41 +133,34 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
     logger(message.content as string);
 
     // Create state update prompt if node has state variables defined
-    let updatedState = state.sharedState;
-    if (node.state && node.state.length > 0) {
+    if (node.state?.length > 0) {
       const stateUpdatePrompt = PromptTemplate.fromTemplate(
-        `Based on the following message from an AI agent to a human, update the following state variables:
+        `Based on the message from an AI agent to a human, update the following state variables:
         Message: """{message}"""
-        State variables to update:
-        {stateVars}
+        State variables to update: \`\`\`{scope}\`\`\`
         
-        Respond with a JSON object containing ONLY the variable names and their new values.`
+        Respond with a JSON object containing the updated state variables.`,
       );
 
-      const stateVarsList = node.state.map(s => 
-        `${s.name}: ${s.description}`
-      ).join('\n');
+      const update = await stateUpdatePrompt.pipe(model).invoke(
+        {
+          message: message.content as string,
+          scope: JSON.stringify(node.state),
+        },
+        {
+          ...config,
+          runName: `State Update - ${node.name}`,
+        },
+      );
 
-      const stateUpdate = await stateUpdatePrompt.pipe(model).invoke({
-        message: message.content,
-        stateVars: stateVarsList
-      });
-
-      try {
-        const newState = JSON.parse(stateUpdate.content as string);
-        updatedState = {
-          ...state.sharedState,
-          ...newState
-        };
-      } catch (e) {
-        logger("Failed to parse state update:", e);
-      }
+      const updatedState = JSON.parse(update.content as string);
+      // merge the original AgentState.state with this updatedState
     }
 
     return {
       lastNode: node.name,
       messages: [message],
-      sharedState: updatedState
+      state: updatedState,
     };
   };
 
@@ -230,7 +223,7 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
     return {
       lastNode: node.name,
       messages: [message],
-      sharedState: state.sharedState
+      sharedState: state.sharedState,
     };
   };
 
