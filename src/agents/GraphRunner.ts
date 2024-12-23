@@ -22,6 +22,7 @@ import { END_NODE } from "../utils/variables";
 export type AgentState = {
   lastNode?: string;
   messages: BaseMessage[];
+  sharedState: SharedState;
 };
 
 export interface GraphRunnerConfig extends RunnableConfig {
@@ -131,9 +132,42 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
 
     logger(message.content as string);
 
+    // Create state update prompt if node has state variables defined
+    let updatedState = state.sharedState;
+    if (node.state && node.state.length > 0) {
+      const stateUpdatePrompt = PromptTemplate.fromTemplate(
+        `Based on the following message from an AI agent to a human, update the following state variables:
+        Message: """{message}"""
+        State variables to update:
+        {stateVars}
+        
+        Respond with a JSON object containing ONLY the variable names and their new values.`
+      );
+
+      const stateVarsList = node.state.map(s => 
+        `${s.name}: ${s.description}`
+      ).join('\n');
+
+      const stateUpdate = await stateUpdatePrompt.pipe(model).invoke({
+        message: message.content,
+        stateVars: stateVarsList
+      });
+
+      try {
+        const newState = JSON.parse(stateUpdate.content as string);
+        updatedState = {
+          ...state.sharedState,
+          ...newState
+        };
+      } catch (e) {
+        logger("Failed to parse state update:", e);
+      }
+    }
+
     return {
       lastNode: node.name,
       messages: [message],
+      sharedState: updatedState
     };
   };
 
@@ -196,6 +230,7 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
     return {
       lastNode: node.name,
       messages: [message],
+      sharedState: state.sharedState
     };
   };
 
@@ -367,6 +402,7 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
     } = await this.graph.invoke(
       {
         messages: input.messages,
+        sharedState: {},
       },
       {
         ...options,
