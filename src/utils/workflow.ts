@@ -62,12 +62,21 @@ export async function runWorkflow(nodes: GraphNode[], messages: BaseMessage[]): 
         maxRetries: 2,
     });
 
-    const tools: StructuredTool[] = [];
+    const toolNames = new Set<string>();
 
-    // If the Bing API key exists, then add BingSerp tool
-    if (Boolean(process.env.BING_API_KEY)) {
-        tools.push(new BingSerpAPI(process.env.BING_API_KEY));
-    }
+    // Loop through the graph nodes collecting the unique tools
+    nodes.forEach(node => {
+        node.tools.forEach(tool => {
+            toolNames.add(tool.name);
+        });
+    });
+
+    // Loop through each of the tools by string name, stub out a /todo
+    const tools: StructuredTool[] = Array.from(toolNames).map(toolName => {
+        // TODO: Implement the creation of tools based on the toolName
+        logger(`Stub for tool creation: ${toolName}`);
+        return null; // Placeholder for actual tool creation
+    }).filter(tool => tool !== null);
 
     const runner = await GraphRunner.make({
         model,
