@@ -40,7 +40,7 @@ export type GraphRunnerOutput = string;
  *  @extends Runnable
  */
 export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
-  public declare lc_namespace: ["Graph Runner"];
+  declare public lc_namespace: ["Graph Runner"];
 
   private readonly graph: CompiledGraph<string>;
 
@@ -94,7 +94,6 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
     model: BaseChatModel,
     config?: RunnableConfig,
   ): Promise<AgentState> => {
-    // Signals calling a new agent,
     logger(`Calling agent: ${node.name}`);
 
     const messages: BaseMessage[] = [];
@@ -102,22 +101,29 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
     messages.push(new HumanMessage(node.instructions!));
 
     let message: BaseMessage;
-    const toolChain = createReactAgent({
-      llm: model,
-      tools: node.tools,
-    });
+    let agent: Runnable;
 
-    const completion = await toolChain.invoke(
+    if (node.tools) {
+      agent = createReactAgent({
+        llm: model,
+        tools: node.tools || [],
+      });
+    } else {
+      const prompt = PromptTemplate.fromTemplate(`Follow the instructions.`);
+      agent = prompt.pipe(model);
+    }
+
+    const completion = await agent.invoke(
       {
         messages,
       },
       {
         ...config,
-        runName: `Tool Agent - ${node.name}`,
+        runName: `Agent - ${node.name}`,
       },
     );
 
-    const lastMessage = completion.messages[completion.messages.length - 1];
+    const lastMessage = completion.messages?.[completion.messages.length - 1];
 
     message = lastMessage
       ? new AIMessage(lastMessage.content)
@@ -177,7 +183,7 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
       },
       {
         ...config,
-        runName: `Node Conditional - ${node.name}`,
+        runName: `Conditional - ${node.name}`,
       },
     );
 
