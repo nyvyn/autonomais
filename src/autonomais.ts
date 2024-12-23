@@ -33,7 +33,7 @@ async function run(path: string | number, prompt?: string): Promise<void> {
     const nodes = parseWorkflow(contents);
 
     console.log(`Running workflow ${path}.`);
-    console.log(prompt ? `Using prompt: ${prompt}.` : "No prompt provided.");
+    if (prompt) console.log(`Sending prompt: ${prompt}.`);
     console.log();
 
     let messages: BaseMessage[] = [];
