@@ -1,6 +1,6 @@
 import { GraphRunner } from "@/agents";
 import { GraphNode } from "@/types/GraphNode";
-import { log } from "@/utils/logger";
+import { logger } from "@/utils/logger";
 import { GPT4_TEXT } from "@/utils/variables";
 import { StructuredTool } from "@langchain/core/tools";
 import { ChatOpenAI } from "@langchain/openai";
@@ -8,14 +8,14 @@ import * as YAML from "yaml";
 
 export function parseWorkflow(source: string) {
     const workflow = YAML.parse(source);
-    log("Running workflow:", workflow);
+    logger("Running workflow:", workflow);
 
     const nodes: GraphNode[] = [];
 
     Object.keys(workflow).map((key) => {
         const prop = workflow[key];
         const node: GraphNode = {
-            name: prop.name,
+            name: key,
             instructions: prop.instructions,
             isConditional: prop.isConditional || false,
             isTerminal: prop.isTerminal || false,
@@ -49,5 +49,5 @@ export async function runWorkflow(nodes: GraphNode[]) {
         tools,
     });
 
-    await runner.invoke(undefined);
+    return await runner.invoke(undefined);
 }
