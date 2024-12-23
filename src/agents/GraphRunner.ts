@@ -51,19 +51,19 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
      *
      *  @param {Object} params - The parameters object.
      *  @param {BaseCheckpointSaver} params.checkpoint - Optional checkpoint saver for the graph.
+     *  @param {string} params.config - The yaml configuration of the workflow.
      *  @param {BaseLanguageModel} params.model - The base language model.
-     *  @param {string} params.path - The path to the workflow.
      *  @param {StructuredTool[]} params.tools - An array of tools required by the workflow.
      *
      *  @return {Promise<GraphRunner>} - A promise that resolves with a GraphRunner instance.
      */
-    public static async fromWorkflow({checkpoint, model, path, tools}: Readonly<{
+    public static async fromWorkflow({checkpoint, config, model, tools}: Readonly<{
         checkpoint?: BaseCheckpointSaver,
+        config: string,
         model: BaseLanguageModel,
-        path: string,
         tools?: StructuredTool[],
     }>): Promise<GraphRunner> {
-        const nodes = parseWorkflow(path, tools);
+        const nodes = parseWorkflow(config, tools);
         return GraphRunner.make({
             model,
             nodes,
