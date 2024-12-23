@@ -15,7 +15,7 @@ start-adventure:
   exit: true
 
 dynamic-exploration:
-  instructions: "Based on the previous decision's character, in about 50 words, describe a scenario 
+  instructions: "Based on the previous character decisions, in about 50 words, describe a scenario 
     that aligns with the player's chosen approach, such as uncovering a hidden path, 
     encountering a mysterious character, or solving an environmental puzzle."
   exit: true
