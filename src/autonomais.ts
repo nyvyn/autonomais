@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { BingSerpAPI } from "@langchain/community/dist/tools/bingserpapi";
+import { BingSerpAPI } from "@langchain/community/tools/bingserpapi";
 import { Calculator } from "@langchain/community/tools/calculator";
 import { AIMessage, BaseMessage, HumanMessage } from "@langchain/core/messages";
 import { StructuredTool } from "@langchain/core/tools";
@@ -10,7 +10,6 @@ import * as repl from "node:repl";
 import * as yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import { enableVerboseLogging, parseWorkflow, runWorkflow } from "./index";
-
 
 /**
  * Runs a workflow.
