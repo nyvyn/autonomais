@@ -205,19 +205,23 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
     // Signals that a new agent will be called,
     logger(`Calling conditional: ${node.name}`);
 
-    const conditionalAgents = [];
-    nodes.forEach((test: GraphNode) => {
+    // Create the list of names for all potential links.
+    // If this node defined links, then use those,
+    // otherwise, use all possible nodes (excepting this one).
+    const linkNames = [];
+    const possible = node.links ? node.links : nodes;
+    possible.forEach((test: GraphNode) => {
       if (test.name && test.name !== node.name) {
-        conditionalAgents.push(test.name);
+        linkNames.push(test.name);
       }
     });
-    if (node.isExit) conditionalAgents.push(END_NODE);
+    if (node.isExit) linkNames.push(END_NODE);
 
     const prompt = PromptTemplate.fromTemplate(`
                 You are to select the next best mode from a list of possible nodes..
                 This is the conversation so far: \"\"\"{messages}\"\"\".
                 Your instructions are: \"\"\"{instructions}\"\"\".
-                Following the instructions, reply with one (and only one) of the following nodes: ${conditionalAgents.join(", ")}.
+                Following the instructions, reply with one (and only one) of the following nodes: ${linkNames.join(", ")}.
             `);
     const completion = await prompt.pipe(model).invoke(
       {
