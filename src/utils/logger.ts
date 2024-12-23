@@ -1,5 +1,3 @@
-import * as console from "node:console";
-
 let VERBOSE_LOGGING = false;
 
 export function enableVerboseLogging(enabled: boolean = true) {

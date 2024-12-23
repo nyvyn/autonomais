@@ -1,3 +1,4 @@
+import { RunnerContext } from "@/types/MessageType";
 import { convertContextToLangChainMessages } from "@/utils/convertContext";
 import { BaseMessage } from "@langchain/core/messages";
 import { Runnable, RunnableConfig } from "@langchain/core/runnables";
@@ -13,19 +14,23 @@ export interface GraphRunnerConfig extends RunnableConfig {
 }
 
 export class GraphRunner extends Runnable<
-    Readonly<string | [string, string] | [string, string][]>,
+    RunnerContext,
     string
 > {
     lc_namespace: ["Graph Runner"];
 
     private readonly graph: Pregel;
 
-    public constructor(config: GraphRunnerConfig) {
+    private constructor(config: GraphRunnerConfig) {
         super(config);
         this.graph = config.graph;
     }
 
-    public async invoke(input: Readonly<string | [string, string] | [string, string][]>, options: Partial<RunnableConfig> | undefined): Promise<any> {
+    public make() {
+        return;
+    }
+
+    public async invoke(input: RunnerContext, options: Partial<RunnableConfig> | undefined): Promise<any> {
         const messages = convertContextToLangChainMessages(input);
 
         const output: {

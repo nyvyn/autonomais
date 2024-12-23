@@ -1,4 +1,4 @@
-import { MessageType } from "@/types/MessageType";
+import { MessageType, RunnerContext } from "@/types/MessageType";
 import { AIMessage, BaseMessage, HumanMessage } from "@langchain/core/messages";
 
 /**
@@ -9,7 +9,7 @@ import { AIMessage, BaseMessage, HumanMessage } from "@langchain/core/messages";
  *  @returns An object that includes the messages that fit the length and all removed messages.
  */
 export function convertContextToLangChainMessages(
-    context?: Readonly<undefined | string | [string, string] | [string, string][]>,
+    context?: RunnerContext,
     tokenLimit?: number
 ): Readonly<{
     removed: BaseMessage[],
