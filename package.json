@@ -8,7 +8,8 @@
     "/dist"
   ],
   "scripts": {
-    "run example": "node ./src/cli.js ./examples/weather.yaml",
+    "build": "tsc",
+    "run example": "ts-node ./src/cli.ts ./examples/weather.yaml",
     "test": "jest",
     "update scripts": "npx npm-check-updates -u"
   },
@@ -16,11 +17,13 @@
     "@langchain/core": "^0.1.55",
     "@langchain/langgraph": "0.0.12",
     "@langchain/openai": "^0.0.26",
+    "yaml": "^2.4.1",
     "yargs": "^17.7.2"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",
     "jest": "^29.7.0",
-    "ts-jest": "^29.1.2"
+    "ts-jest": "^29.1.2",
+    "ts-node": "^10.9.2"
   }
 }
