@@ -1,0 +1,18 @@
+# This workflow works best with tools to search the web or wolfram alpha
+# Optional set BING_SEARCH_API_KEY or WOLFRAM_ALPHA_API_KEY or provide your own weather tool(s).
+
+---
+determine-location:
+  instructions: "Is the location of the desired weather information in the message history? If so, continue, otherwise, ask for the desired location."
+  conditional: true
+
+ask-for-location:
+  instructions: "Ask the user for their location."
+  exit: true
+
+retrieve-weather:
+  instructions: "Retrieve today and tomorrow's weather.
+   Format as a markdown table with low, high, and conditions.
+   Ask if location is not provided."
+  exit: true # setting this is optional, the last node is always an exit node
+
