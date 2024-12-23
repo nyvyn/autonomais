@@ -1,4 +1,4 @@
-describe("cli", () => {
+describe("autonomais cli", () => {
     let originalArgv: string[];
     let processExitSpy: jest.SpyInstance<never, [code?: number], any>;
 
@@ -30,7 +30,7 @@ describe("cli", () => {
 
         await runCommand("--help");
 
-        expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("cli.js"));
+        expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("autonomais.ts"));
     });
 
     it("should run weather example workflow", async () => {
@@ -46,7 +46,7 @@ describe("cli", () => {
 async function runCommand(...args: string[]) {
     process.argv = [
         "node", // Not used, but a value is required at this index in the array
-        "cli.js", // Not used, but a value is required at this index in the array
+        "autonomais.ts", // Not used, but a value is required at this index in the array
         ...args,
     ];
 
