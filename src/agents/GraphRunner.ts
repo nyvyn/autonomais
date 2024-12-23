@@ -313,11 +313,11 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
 
     const schema: {
       lastNode: {
-        reducer: BinaryOperator<string> | null;
+        reducer: BinaryOperator<string, string> | null;
         default?: () => string;
       };
       messages: {
-        reducer: BinaryOperator<BaseMessage[]> | null;
+        reducer: BinaryOperator<BaseMessage[], BaseMessage[]> | null;
         default?: () => BaseMessage[];
       };
     } = {
