@@ -33,7 +33,12 @@ where multiple AI agents can work together to achieve goals that are difficult f
 See the provided `helloworld.yaml` as an example.
 Running this should echo from the LLM "Hello World!" or similar.
 
-To run the demo, first, ensure you have built the project by running the build command specified in `package.json`:
+To run the demo:
+
+Configure an API key for one of the supported LLM providers,
+e.g. OPENAI_API_KEY.
+
+Then, ensure the project has been built by running the build command specified in `package.json`:
 
 You can execute the example workflow using the CLI:
 
@@ -47,7 +52,7 @@ After building the project, you can execute the example workflow using the npm s
 npm run demo
 ```
 
-This command will execute the `src/cli.ts` script with the `examples/helloworld.yaml` workflow file.
+This command will execute the `src/autonomais.ts` script with the `examples/helloworld.yaml` workflow file.
 You can also run any other workflow file by replacing `examples/helloworld.yaml` with the path to your desired
 workflow file.
 
@@ -55,12 +60,13 @@ To run with your own workflow, run the following command from your terminal,
 replacing `helloworld.yaml` with the path to your own agent configuration.
 
 ```shell
-ts-node ./src/cli.ts ./examples/helloworld.yaml
+ts-node ./src/autonomais.ts ./examples/helloworld.yaml
 ```
 
 ## Contributing
 
-We welcome contributions from the community! If you're interested in helping to improve Autonomais, please follow these steps:
+We welcome contributions from the community! If you are interested in helping to improve Autonomais, please follow
+these steps:
 
 1. **Fork the repository**: Make a copy of the project on your own account to work on.
 2. **Create a branch**: Create a branch in your fork for your changes.
@@ -70,19 +76,6 @@ We welcome contributions from the community! If you're interested in helping to 
 6. **Open a pull request**: Submit a pull request to the main repository with a clear description of what your changes do.
 
 Please make sure to adhere to the project's coding standards and include appropriate tests and documentation with your contributions.
-
-To run Autonomais with an example workflow, you can use the provided `helloworld.yaml` example. First, ensure you have built the project by running:
-
-You can execute the example workflow using the CLI:
-
-```sh
-npm run demo
-```
-
-This command will run the `src/cli.ts` script with the `examples/helloworld.yaml` workflow file. 
-You can also run any other workflow file by replacing `examples/helloworld.yaml` 
-with the path to your desired workflow file.
-
 
 ## Technologies Used
 
