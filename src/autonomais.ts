@@ -32,9 +32,9 @@ async function run(path: string | number, prompt?: string): Promise<void> {
         return;
     }
 
-    const contents = fs.readFileSync(path.toString(), "utf-8");
+    const config = fs.readFileSync(path.toString(), "utf-8");
     const tools = makeTools();
-    const nodes = parseWorkflow(contents, tools);
+    const nodes = parseWorkflow(config, tools);
 
     console.log(`Running workflow ${path}.`);
     if (prompt) console.log(`Sending prompt: ${prompt}.`);
@@ -87,7 +87,6 @@ async function run(path: string | number, prompt?: string): Promise<void> {
 function colorize(text: string): string {
     return `\x1b[32m ${text} \x1b[0m`;
 }
-
 
 /**
  *  Makes the default set of tools for use by workflows executed on the command-line

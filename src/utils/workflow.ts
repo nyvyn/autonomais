@@ -8,24 +8,6 @@ import { GraphNode } from "../types";
 import { logger } from "./logger";
 import { GPT4_TEXT } from "./variables";
 
-function makeTool(
-    ToolConstructor: any,
-    envVariable?: string,
-    toolOptions = {}
-): StructuredTool {
-    let envOptions = {};
-    if (envVariable) {
-        const envVarValue = process.env[envVariable];
-        if (!Boolean(envVarValue)) {
-            throw new Error(`${envVariable} not set.`);
-        }
-        envOptions = {
-            apiKey: envVarValue
-        };
-    }
-    return new ToolConstructor({...envOptions, ...toolOptions});
-}
-
 /**
  *  Parses a workflow from a source string and returns an array of GraphNode objects.
  *

@@ -15,7 +15,7 @@
 
 - [Why Autonomais?](#why-autonomais)
 - [Getting Started](#getting-started)
-- [Key Concepts](#key-concepts)
+- [How It Works](#how-it-works)
 - [Setup](#setup)
 - [Contributing](#contributing)
 - [Technologies Used](#technologies-used)
@@ -28,11 +28,137 @@ Autonomais goal is to provide the absolute fastest and simplest way to coordinat
 Autonomais is a typescript npm library with a commercial-fiendly license.
 Autonomais also includes an interactive command-line interface for desktop workflows.
 
-## Key Concepts
+## How It Works
 
-Autonomais simplifies building powerful agentic workflow.
+Autonomais helps developers build flexible AI agent workflows.
 
-Workflows are defined as an array of `GraphNodes` which are passed to the `GraphRunner invoke` method.
+A workflow is a set of nodes with configured behavior and tools,
+that collaborate to achieve a provided goal or objective.
+
+Workflows are defined using three types of nodes:
+
+- **Agent Nodes** — agents can optionally use defined tools.
+- **Conditional Nodes** — conditionals select the next best node.
+- **Exit Nodes** — a special case of Agent Nodes that terminate after completion.
+
+All nodes follow their configured instructions and have access to conversation history.
+
+### Agent nodes
+
+The simplest workflow is one with a single agent; as demonstrated by `./examples/echo.yaml`.
+(Note: this is like directly prompting an LLM.)
+
+```yaml
+echo:
+   instructions: "Repeat back what the user said, or Hello World if none."
+```
+
+All nodes are required to have a name (e.g., "hello-world") and instructions.
+
+### Agent nodes can use tools
+
+Agent (and Exit) nodes may be configured to use tools.
+
+```yaml
+calculate:
+   instructions: "Calculate the provided equation."
+   tools: [ "calculator" ]
+```
+
+### Chaining nodes
+
+Two nodes defined in succession are a chain. That is, no conditional or exit nodes intervene.
+
+```yaml
+researcher:
+   instructions: "Your role is to reseach AI topics"
+   tools: [ "bing-search", "web-browser" ]
+
+editor:
+   instructions: "Edit the research into a compelling narrative"
+```
+
+The first agent is expected to search the web and gather information with search and browser tools.
+The second is also an agent, but does not tools — relying on the LLM exclusively.
+
+### Exit nodes
+
+Exit nodes are agent nodes that... exit the workflow.
+
+Constraints:
+
+* The last node is always an exit node.
+* Conditional nodes cannot be exit nodes.
+* Therefore, the last node can never be a conditional node.
+
+Note: Exit nodes can use tools, the same as Agent nodes.
+
+### Conditional nodes
+
+Conditional nodes follow instructions to identify the next best node.
+A common use is to ensure that direction has been provided before executing a chain.
+
+```yaml
+identify-topic:
+   instructions: If the user has not provided a topic, then ask them too. Otherwise start researching.
+   conditional: true
+
+ask-for-topic:
+   instructions: Ask the user what topic to research.
+   exit: true
+
+researcher:
+   instructions: Research useful topics on the provided
+   exit: true # this is optional, as the last node is an exit node by default
+```
+
+Note: Conditional nodes cannot use tools, only agent and exit nodes can.
+
+### Running the graph
+
+This can be run interactively as follows:
+
+### Via the shell
+
+```shell
+ts-node ./src/autonomais.ts ./examples/echo.yaml
+```
+
+### Programmatically with yaml
+
+Yaml can be run directly via `src/workflow.ts`, which converts each entry to a `GraphNode`,
+which in turn are passed as an array to `GraphRunner`.
+
+```typescript
+// Load the yaml file
+import { parseWorkflow, runWorkflow } from "./workflow";
+
+const config = fs.readFileSync(path.toString(), "utf-8");
+
+// Parse the yaml file into GraphNodes
+const nodes: GraphNode[] = parseWorkflow(config);
+
+// Run the workflow
+// Messages are LangChain BaseMessage(s).
+runWorkflow(nodes, messages);
+```
+
+### Programmatically with json
+
+```typescript
+const nodes: GraphNode[] = [
+   {
+      name: "hello-world",
+      instructions: "Repeat back what the user said, or Hello World if none."
+   }
+];
+
+// Model is a LangChain BaseModel.
+const runner = GraphRunner.make({model, nodes});
+
+// Messages are LangChain BaseMessage(s).
+runner.invoke({messages});
+```
 
 ## Getting Started
 
@@ -47,6 +173,7 @@ Workflows are defined as an array of `GraphNodes` which are passed to the `Graph
    ```shell
    ts-node ./src/autonomais.ts ./examples/echo.yaml
    ```
+
 ## Setup
 
 ### NPM Package
