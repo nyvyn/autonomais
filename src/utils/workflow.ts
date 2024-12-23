@@ -1,8 +1,7 @@
 import { BaseMessage } from "@langchain/core/messages";
 import { StructuredTool } from "@langchain/core/tools";
 import { ChatOpenAI } from "@langchain/openai";
-import * as process from "node:process";
-import * as YAML from "yaml";
+import { parse } from "yaml";
 import { GraphRunner } from "../agents";
 import { GraphNode } from "../types";
 import { logger } from "./logger";
@@ -16,82 +15,91 @@ import { GPT4_TEXT } from "./variables";
  *
  *  @return {GraphNode[]} - An array of GraphNode objects representing the workflow.
  */
-export function parseWorkflow(config: string, tools: StructuredTool[] = []): GraphNode[] {
-    const workflow = YAML.parse(config);
-    logger("Running workflow:", workflow);
+export function parseWorkflow(
+  config: string,
+  tools: StructuredTool[] = [],
+): GraphNode[] {
+  const workflow = parse(config);
+  logger("Running workflow:", workflow);
 
-    const nodes: GraphNode[] = [];
+  const nodes: GraphNode[] = [];
 
-    Object.keys(workflow).map((key) => {
-        const prop = workflow[key];
+  Object.keys(workflow).map((key) => {
+    const prop = workflow[key];
 
-        // the workflow optionally defines tool names for each graph node.
-        const selected: StructuredTool[] = prop.tools?.map((toolName: string) => {
-            // return the tool matching the tool.name with the provided toolName
-            // Otherwise, throw an error if no match found.
-            return tools.find(tool => tool.name === toolName) || (() => {
-                throw new Error(`Tool \`${toolName}\` not found.`);
-            })();
-        });
-
-        const node: GraphNode = {
-            name: key,
-            instructions: prop.instructions,
-            isConditional: prop.conditional || false,
-            isExit: prop.exit || false,
-            tools: selected || [],
-        };
-        nodes.push(node);
+    // the workflow optionally defines tool names for each graph node.
+    const selected: StructuredTool[] = prop.tools?.map((toolName: string) => {
+      // return the tool matching the tool.name with the provided toolName
+      // Otherwise, throw an error if no match found.
+      return (
+        tools.find((tool) => tool.name === toolName) ||
+        (() => {
+          throw new Error(`Tool \`${toolName}\` not found.`);
+        })()
+      );
     });
 
-    // Update each node's links with the corresponding GraphNode objects
-    nodes.forEach((node) => {
-        const prop = workflow[node.name];
-        if (prop.links) {
-            node.links = prop.links.map((linkName: string) => {
-                const linkedNode = nodes.find(n => n.name === linkName);
-                if (!linkedNode) {
-                    throw new Error(`Linked node \`${linkName}\` not found.`);
-                }
-                return linkedNode;
-            });
+    const node: GraphNode = {
+      name: key,
+      instructions: prop.instructions,
+      isConditional: prop.conditional || false,
+      isExit: prop.exit || false,
+      tools: selected || [],
+    };
+    nodes.push(node);
+  });
+
+  // Update each node's links with the corresponding GraphNode objects
+  nodes.forEach((node) => {
+    const prop = workflow[node.name];
+    if (prop.links) {
+      node.links = prop.links.map((linkName: string) => {
+        const linkedNode = nodes.find((n) => n.name === linkName);
+        if (!linkedNode) {
+          throw new Error(`Linked node \`${linkName}\` not found.`);
         }
-    });
+        return linkedNode;
+      });
+    }
+  });
 
-    return nodes;
+  return nodes;
 }
 
 /**
  *  Runs a workflow using a set of graph nodes and a prompt.
  *
  *  @param {GraphNode[]} nodes - An array of graph nodes representing the workflow.
- *  @param {BaseMessage[]} messages - The current message context of the workflow
+ *  @param {BaseMessage[]} messages - The current message context of the workflow.
  *
  *  @throws {Error} - Throws an error if the OpenAI API Key is not set.
  *
  *  @returns {Promise<string>} - Returns a Promise that resolves to the result of the workflow execution.
  */
-export async function runWorkflow(nodes: GraphNode[], messages: BaseMessage[]): Promise<string> {
-    const openAiApiKey = process.env.OPENAI_API_KEY;
-    if (!Boolean(openAiApiKey)) {
-        throw new Error("OpenAI API Key not set.");
-    }
+export async function runWorkflow(
+  nodes: GraphNode[],
+  messages: BaseMessage[],
+): Promise<string> {
+  const openAiApiKey = process.env.OPENAI_API_KEY;
+  if (!Boolean(openAiApiKey)) {
+    throw new Error("OpenAI API Key not set.");
+  }
 
-    const model = new ChatOpenAI({
-        openAIApiKey: openAiApiKey,
-        modelName: GPT4_TEXT,
-        temperature: 0,
-        topP: 0,
-        streaming: false,
-        maxRetries: 2,
-    });
+  const model = new ChatOpenAI({
+    openAIApiKey: openAiApiKey,
+    modelName: GPT4_TEXT,
+    temperature: 0,
+    topP: 0,
+    streaming: false,
+    maxRetries: 2,
+  });
 
-    const runner = await GraphRunner.make({
-        model,
-        nodes,
-    });
+  const runner = await GraphRunner.make({
+    model,
+    nodes,
+  });
 
-    return await runner.invoke({
-        messages,
-    });
+  return await runner.invoke({
+    messages,
+  });
 }
