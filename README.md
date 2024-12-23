@@ -104,8 +104,8 @@ breaks down the main components that enable you to build versatile and efficient
 
 ### Workflows
 
-At the heart of Autonomais is the **workflow**—a structured sequence of operations determined by nodes. Each workflow
-encapsulates a goal, guiding multiple agents through a series of tasks to achieve this goal efficiently.
+Autonomais defines groups of nodes as a **workflow**.
+Each workflow encapsulates a goal, guiding multiple agents through a series of tasks to achieve this goal efficiently.
 
 ### Nodes
 
@@ -122,21 +122,21 @@ They represent distinct steps or operations within a workflow and come in three 
    Though typically the last node in your workflow,
    they can also be interspersed to handle various termination conditions or outcomes.
 
-### Node Characteristics
+### Node Attributes
 
 - **Instructions**: Directives given to agent nodes, outlining the task to be performed. For example, "Repeat back what
   the user said, or say Hello World if none."
 - **Tools**: An optional attribute for agent nodes, specifying any external tools or services employed to achieve the
   node's task.
-- **Chaining**: Successive nodes without intervening conditional or exit nodes are considered a chain, facilitating
-  seamless task transitions within the workflow.
-- **Conditional Logic**: Employed within conditional nodes to determine the next steps based on specific criteria,
-  ensuring the workflow adapts to varying conditions.
+- **Conditional**: Node is treated as conditional, instructions should guide LLM to choose next best node.
+- **Exit**: Node should exit the workflow after completion. In practice, this is an agent node that doesn't continue
+  to the next in the chain.
 
 ### Constructing a Workflow
 
-Workflows are defined through a YAML or JSON configuration, which outlines the nodes and their relationships.
-This structure allows for flexible and dynamic workflow designs to address complex agent coordination challenges.
+Workflows are defined through a YAML or as an array of JS object with attributes that define their behavior and
+relationships.
+This structure allows for flexible and dynamic workflow designed to address complex agent coordination challenges.
 
 ## Understanding Nodes
 
