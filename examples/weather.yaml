@@ -12,7 +12,7 @@ ask-for-location:
 
 retrieve-weather:
   instructions: "Retrieve today and tomorrow's weather.
-   Format as a markdown table with low, high, and conditions.
-   Ask if location is not provided."
+    Format as a markdown table with low, high, and conditions.
+    Ask if location is not provided."
   exit: true # setting this is optional, the last node is always an exit node
 
