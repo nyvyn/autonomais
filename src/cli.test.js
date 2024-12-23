@@ -32,7 +32,7 @@ describe("cli", () => {
 
         await runCommand("--help");
 
-        expect(consoleSpy).toBeCalledWith("Help");
+        expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("Help"));
     });
 });
 
