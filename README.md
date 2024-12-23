@@ -38,7 +38,7 @@ For experimentation and simplicity, Autonomais also includes an interactive comm
 2. Via the command-line:
 
    ```shell
-   ts-node ./src/autonomais.ts ./examples/helloworld.yaml
+   ts-node ./src/autonomais.ts ./examples/echo.yaml
    ```
 ## Setup
 

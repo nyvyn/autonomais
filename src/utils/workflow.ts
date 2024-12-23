@@ -1,7 +1,3 @@
-import { GraphRunner } from "@/agents";
-import { GraphNode } from "@/types/GraphNode";
-import { logger } from "@/utils/logger";
-import { GPT4_TEXT } from "@/utils/variables";
 import { BingSerpAPI } from "@langchain/community/tools/bingserpapi";
 import { Calculator } from "@langchain/community/tools/calculator";
 import { SearxngSearch } from "@langchain/community/tools/searxng_search";
@@ -10,6 +6,10 @@ import { StructuredTool } from "@langchain/core/tools";
 import { ChatOpenAI } from "@langchain/openai";
 import * as process from "node:process";
 import * as YAML from "yaml";
+import { GraphRunner } from "../agents";
+import { GraphNode } from "../types";
+import { logger } from "./logger";
+import { GPT4_TEXT } from "./variables";
 
 function makeTool(
     ToolConstructor: any,

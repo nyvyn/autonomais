@@ -1,6 +1,3 @@
-import { GraphNode } from "@/types";
-import { logger } from "@/utils";
-import { END_NODE } from "@/utils/variables";
 import { BaseLanguageModel } from "@langchain/core/dist/language_models/base";
 import { AIMessage, BaseMessage, HumanMessage } from "@langchain/core/messages";
 import { PromptTemplate } from "@langchain/core/prompts";
@@ -9,6 +6,9 @@ import { END, StateGraph } from "@langchain/langgraph";
 import { BinaryOperator } from "@langchain/langgraph/dist/channels/binop";
 import { createFunctionCallingExecutor } from "@langchain/langgraph/prebuilt";
 import { Pregel } from "@langchain/langgraph/pregel";
+import { GraphNode } from "../types";
+import { logger } from "../utils";
+import { END_NODE } from "../utils/variables";
 
 export type AgentState = {
     messages: BaseMessage[];

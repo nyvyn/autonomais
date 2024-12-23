@@ -1,5 +1,0 @@
-# Tests the LLMs
-
----
-hello-world:
-  instructions: "Reply with 'Hello World'"

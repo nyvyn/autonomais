@@ -4,12 +4,12 @@
   "description": "An approachable way to define multiple, collaborative AI agents",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "engines": {
-    "node": "20.x"
-  },
   "files": [
     "/dist"
   ],
+  "engines": {
+    "node": "20.x"
+  },
   "scripts": {
     "dev": "ts-node src/autonomais.ts",
     "build": "tsc",
