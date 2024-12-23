@@ -1,6 +1,6 @@
 {
   "name": "autonomais",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "An approachable way to define multiple, collaborative AI agents",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

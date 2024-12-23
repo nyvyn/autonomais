@@ -1,6 +1,3 @@
-import { BingSerpAPI } from "@langchain/community/tools/bingserpapi";
-import { Calculator } from "@langchain/community/tools/calculator";
-import { SearxngSearch } from "@langchain/community/tools/searxng_search";
 import { BaseMessage } from "@langchain/core/messages";
 import { StructuredTool } from "@langchain/core/tools";
 import { ChatOpenAI } from "@langchain/openai";
@@ -32,11 +29,13 @@ function makeTool(
 /**
  *  Parses a workflow from a source string and returns an array of GraphNode objects.
  *
- *  @param {string} source - The source string representing the workflow in YAML format.
+ *  @param {string} config - The workflow configuration in YAML format.
+ *  @param tools - The available tools to match with the optionally defined tools of each workflow node.
+ *
  *  @return {GraphNode[]} - An array of GraphNode objects representing the workflow.
  */
-export function parseWorkflow(source: string): GraphNode[] {
-    const workflow = YAML.parse(source);
+export function parseWorkflow(config: string, tools: StructuredTool[] = []): GraphNode[] {
+    const workflow = YAML.parse(config);
     logger("Running workflow:", workflow);
 
     const nodes: GraphNode[] = [];
@@ -44,39 +43,21 @@ export function parseWorkflow(source: string): GraphNode[] {
     Object.keys(workflow).map((key) => {
         const prop = workflow[key];
 
-        const tools: StructuredTool[] = prop.tools?.map((toolName: string) => {
-            switch (toolName.toLowerCase()) {
-                case "bing-search":
-                    return makeTool(
-                        BingSerpAPI,
-                        "BING_SEARCH_API_KEY",
-                    );
-                case "calculator":
-                    return makeTool(
-                        Calculator
-                    );
-                case "searxng-search":
-                    return makeTool(
-                        SearxngSearch,
-                        "SEARXNG_SEARCH_BASE_URL",
-                        {
-                            params: {
-                                format: "json",
-                                engines: "google",
-                            },
-                        }
-                    );
-                default:
-                    throw new Error(`Unknown tool: ${toolName}`);
-            }
-        }).filter(tool => tool !== null);
+        // the workflow optionally defines tool names for each graph node.
+        const selected: StructuredTool[] = prop.tools?.map((toolName: string) => {
+            // return the tool matching the tool.name with the provided toolName
+            // Otherwise, throw an error if no match found.
+            return tools.find(tool => tool.name === toolName) || (() => {
+                throw new Error(`Tool \`${toolName}\` not found.`);
+            })();
+        });
 
         const node: GraphNode = {
             name: key,
             instructions: prop.instructions,
             isConditional: prop.conditional || false,
             isExit: prop.exit || false,
-            tools: tools || [],
+            tools: selected || [],
         };
         nodes.push(node);
     });

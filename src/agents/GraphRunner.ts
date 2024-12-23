@@ -28,7 +28,7 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
 
     private readonly graph: Pregel;
 
-    constructor(input: GraphRunnerConfig) {
+    private constructor(input: GraphRunnerConfig) {
         super({
             ...input,
             runName: "Graph Runner",
