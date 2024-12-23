@@ -62,27 +62,27 @@ export class GraphRunner extends RunnableChain<GraphRunnerInput, GraphRunnerOutp
         // Signals calling a new agent,
         logger(`Calling agent: ${node.name}`);
 
-        const converted: ChatCompletionMessageParam[] = state.messages.map((message) => {
-            const content = typeof message.content === "string" ? message.content : JSON.stringify(message.content);
-            if (message instanceof AIMessage) {
-                return {content, role: "assistant"};
-            } else if (message instanceof HumanMessage) {
-                return {content, role: "user"};
-            } else if (message instanceof SystemMessage) {
-                return {content, role: "system"};
-            } else if (message instanceof ToolMessage) {
-                return {content, role: "tool", tool_call_id: message.tool_call_id};
-            } else {
-                throw new Error("Unknown message type.");
-            }
-        });
-
-        if (node.instructions) converted.push({content: node.instructions, role: "user"});
-
         let message: BaseMessage;
         if (tools.length > 0) {
             const openAiApiKey = process.env.OPENAI_API_KEY;
             const openai = new OpenAI({apiKey: openAiApiKey});
+
+            const converted: ChatCompletionMessageParam[] = state.messages.map((message) => {
+                const content = typeof message.content === "string" ? message.content : JSON.stringify(message.content);
+                if (message instanceof AIMessage) {
+                    return {content, role: "assistant"};
+                } else if (message instanceof HumanMessage) {
+                    return {content, role: "user"};
+                } else if (message instanceof SystemMessage) {
+                    return {content, role: "system"};
+                } else if (message instanceof ToolMessage) {
+                    return {content, role: "tool", tool_call_id: message.tool_call_id};
+                } else {
+                    throw new Error("Unknown message type.");
+                }
+            });
+
+            if (node.instructions) converted.push({content: node.instructions, role: "user"});
 
             const runner = new ToolChain({
                 openai: openai,
