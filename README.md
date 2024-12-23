@@ -4,6 +4,14 @@
 
 **Effortlessly simple agent-based workflows!**
 
+## Table of Contents
+
+- [Why Autonomais?](#why-autonomais)
+- [Getting Started](#getting-started)
+- [Contributing](#contributing)
+- [Technologies Used](#technologies-used)
+- [License](#license)
+
 <hr>
 
 [![GitHub Repo stars](https://img.shields.io/github/stars/nyvyn/autonomais)](https://github.com/nyvyn/autonomais)
