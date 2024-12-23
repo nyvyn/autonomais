@@ -14,12 +14,32 @@ import { enableVerboseLogging, logger, parseWorkflow, runWorkflow } from "./inde
  *
  * @returns {Promise<void>} - A promise that resolves when the workflow is complete.
  */
-async function run(path: string | number, prompt?: string): Promise<void> {
-    if (!path) console.error("No workflow path given");
-    const contents = fs.readFileSync(path, "utf-8");
+async function run(path: string | number): Promise<void> {
+    if (!path) {
+        console.error("No workflow path given");
+        return;
+    }
+    const contents = fs.readFileSync(path.toString(), "utf-8");
     const nodes = parseWorkflow(contents);
-    logger(nodes);
-    const completion = await runWorkflow(nodes, prompt);
+
+    const replServer = repl.start({
+        prompt: "Enter your prompt: ",
+        eval: async (cmd, context, filename, callback) => {
+            try {
+                const completion = await runWorkflow(nodes, cmd);
+                console.log("AI: " + completion);
+                callback(null, completion);
+            } catch (error) {
+                console.error("Error running workflow:", error);
+                callback(error);
+            }
+        },
+    });
+
+    replServer.on('exit', () => {
+        console.log('REPL session ended. Workflow complete.');
+        process.exit();
+    });
 
     console.log("AI: " + completion);
     console.log();
@@ -43,8 +63,8 @@ async function main(): Promise<void> {
     ).command({
         command: ["source", "$0"],
         describe: "autonomais.ts <source> [prompt]",
-        handler: args => {
-            run(args._[0], args.prompt);
+        handler: async args => {
+            await run(args._[0]);
         }
     }).option("prompt", {
         alias: "p",
