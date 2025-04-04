@@ -144,7 +144,6 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
    *
    * @param {AgentState} state - The current state of the agent to be processed.
    * @param {GraphNode} node - The current graph node representing the operation to be executed.
-   * @param {GraphNode[]} nodes - A list of all relevant graph nodes in the process.
    * @param {BaseChatModel} model - The model instance used for probabilistic or deterministic decision-making within the node operations.
    * @param {RunnableConfig} [config] - Optional configuration object providing additional settings for execution.
    * @returns {Promise<AgentState>} A promise that resolves to the updated agent state after processing both the agent and conditional logic.
@@ -152,7 +151,6 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
   private static callCombined = async (
     state: AgentState,
     node: GraphNode,
-    nodes: GraphNode[],
     model: BaseChatModel,
     config?: RunnableConfig,
   ): Promise<AgentState> => {
@@ -162,7 +160,7 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
     const agentState = await GraphRunner.callAgent(state, node, model, config);
 
     // Pass updated state into Conditional
-    return GraphRunner.callConditional(agentState, node, nodes, model, config);
+    return GraphRunner.callConditional(agentState, node, model, config);
   };
 
   /**
@@ -170,7 +168,6 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
    *
    *  @param {AgentState} state - The current state of the workflow.
    *  @param {GraphNode} node - The node represening the agent to invoke.
-   *  @param {GraphNode[]} nodes - The list of all graph nodes (used for selecting the next node).
    *  @param {BaseChatModel} model - The language model to use for the workflow.
    *  @param {RunnableConfig} [config] - Optional configuration for the Runnable.
    *
@@ -185,47 +182,42 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
     // Signals that a new agent will be called,
     logger(`Calling conditional: ${node.name}`);
 
-    // Create the list of names for all potential links.
-    const linkNames = [];
-    if (!node.links || node.links.length === 0) {
-      linkNames.push(END_NODE);
+    let message: AIMessage;
+    if (node.links?.length === 0) {
+      message = new AIMessage("Selected: " + END_NODE);
+    } else if (node.links?.length === 1) {
+      message = new AIMessage("Selected: " + node.links[0].name);
     } else {
-      const possible = node.links;
+      // Create the list of names for all potential links.
+      const linkNames = [];
+      const possible = node.links || [];
       possible.forEach((test: GraphNode) => {
         if (test.name && test.name !== node.name) {
           linkNames.push(test.name);
         }
       });
-    }
 
-    if (linkNames.length === 1) {
-      const message = new AIMessage("Selected: " + linkNames[0]);
-      logger(message.content as string);
-      return {
-        lastNode: node.name,
-        messages: [message],
-      };
-    }
-    const prompt = PromptTemplate.fromTemplate(`
-                You are to select the next best mode from a list of possible nodes..
-                This is the conversation so far: \"\"\"{messages}\"\"\".
-                Your instructions are: \"\"\"{instructions}\"\"\".
-                Following the instructions, reply with one (and only one) of the following nodes: ${linkNames.join(", ")}.
-            `);
-    const completion = await prompt.pipe(model).invoke(
-      {
-        messages: JSON.stringify(state.messages!),
-        instructions: node.instructions!,
-      },
-      {
-        ...config,
-        runName: `Conditional - ${node.name}`,
-      },
-    );
+      const prompt = PromptTemplate.fromTemplate(`
+                  You are to select the next best mode from a list of possible nodes..
+                  This is the conversation so far: \"\"\"{messages}\"\"\".
+                  Your instructions are: \"\"\"{instructions}\"\"\".
+                  Following the instructions, reply with one (and only one) of the following nodes: ${linkNames.join(", ")}.
+              `);
+      const completion = await prompt.pipe(model).invoke(
+        {
+          messages: JSON.stringify(state.messages!),
+          instructions: node.instructions!,
+        },
+        {
+          ...config,
+          runName: `Conditional - ${node.name}`,
+        },
+      );
 
-    const message = completion.content
-      ? new AIMessage("Selected: " + completion.content)
-      : new AIMessage("No response from AI.");
+      message = completion.content
+        ? new AIMessage("Selected: " + completion.content)
+        : new AIMessage("No response from AI.");
+    }
 
     logger(message.content as string);
 
@@ -315,14 +307,14 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
 
     // Define the nodes
     nodes.forEach((node) => {
-      const hasTools = node.tools && node.tools.length > 0;
-      const hasLinks = node.links && node.links.length > 0;
+      const hasTools = node.tools?.length > 0;
+      const hasLinks = node.links?.length > 0;
 
       let runnable: RunnableLambda<AgentState, AgentState>;
 
       if (hasTools && hasLinks) {
         runnable = RunnableLambda.from((state, config) =>
-          GraphRunner.callCombined(state, node, nodes, model, config),
+          GraphRunner.callCombined(state, node, model, config),
         );
       } else if (hasTools) {
         runnable = RunnableLambda.from((state, config) =>
@@ -330,7 +322,7 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
         );
       } else {
         runnable = RunnableLambda.from((state, config) =>
-          GraphRunner.callConditional(state, node, nodes, model, config),
+          GraphRunner.callConditional(state, node, model, config),
         );
       }
 
