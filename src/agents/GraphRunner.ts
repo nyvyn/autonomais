@@ -341,7 +341,7 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
         workflow.addEdge(node.name!, END);
       }
 
-      if (node.links.length > 0) {
+      if (node.links && node.links.length > 0) {
         let mapping: Record<string, string> = {};
 
         const filteredNodes = nodes.filter((test) =>
