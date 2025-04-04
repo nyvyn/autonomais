@@ -233,7 +233,7 @@ const nodes: GraphNode[] = parseWorkflow(config);
 runWorkflow(nodes, messages);
 ```
 
-### Programmatically with json
+### Programmatically building a workflow
 
 ```typescript
 // Tools are defined separately and passed to Agent and Exit nodes.
@@ -263,9 +263,9 @@ providing a flexible and powerful foundation.
 The key addition of this library is to move the configuration of the graph workflows to attributes of the nodes.
 These attributes then guide the setup of the graph as found in `src/agents/GraphRunner`.
 
-In turn, GraphRunner configures nodes as Agents, using `createFunctionCallingExecutor`. This is a prebuilt function
-offered by LangGraph here:
-[source](https://github.com/langchain-ai/langgraphjs/blob/main/langgraph/src/prebuilt/chat_agent_executor.ts).
+In turn, GraphRunner configures nodes as Agents, using `createReactAgent`. 
+This is a prebuilt function offered by LangGraph here:
+[source](https://github.com/langchain-ai/langgraphjs/blob/main/libs/langgraph/src/prebuilt/react_agent_executor.ts).
 This gives agents their tool-using ability.
 
 Conditional nodes use [LCEL](https://js.langchain.com/docs/expression_language/get_started) to determine the next
