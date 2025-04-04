@@ -342,27 +342,32 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
       }
 
       if (node.links && node.links.length > 0) {
-        let mapping: Record<string, string> = {};
+        if (node.links.length === 1) {
+          workflow.addEdge(node.name!, node.links[0].name!);
+        } else {
+          let mapping: Record<string, string> = {};
 
-        const filteredNodes = nodes.filter((test) =>
-          node.links.some((link) => link.name === test.name),
-        );
+          const filteredNodes = nodes.filter((test) =>
+            node.links.some((link) => link.name === test.name),
+          );
 
-        // Add all filtered agents as possible next nodes
-        filteredNodes.forEach((test) => {
-          if (test.name && test.name !== node.name) {
-            mapping = {
-              ...mapping,
-              [test.name]: test.name,
-            };
-          }
-        });
+          // Add all filtered agents as possible next nodes
+          filteredNodes.forEach((test) => {
+            if (test.name && test.name !== node.name) {
+              mapping = {
+                ...mapping,
+                [test.name]: test.name,
+              };
+            }
+          });
 
-        workflow.addConditionalEdges(
-          node.name!,
-          (state: AgentState) => GraphRunner.determineNextAgent(state, mapping),
-          mapping,
-        );
+          workflow.addConditionalEdges(
+            node.name!,
+            (state: AgentState) =>
+              GraphRunner.determineNextAgent(state, mapping),
+            mapping,
+          );
+        }
       } else {
         workflow.addEdge(node.name, END);
       }
