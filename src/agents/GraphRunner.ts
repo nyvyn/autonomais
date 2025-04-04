@@ -179,7 +179,6 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
   private static callConditional = async (
     state: AgentState,
     node: GraphNode,
-    nodes: GraphNode[],
     model: BaseChatModel,
     config?: RunnableConfig,
   ): Promise<AgentState> => {
@@ -187,16 +186,17 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
     logger(`Calling conditional: ${node.name}`);
 
     // Create the list of names for all potential links.
-    // If this node defined links, then use those,
-    // otherwise, use all possible nodes (excepting this one).
     const linkNames = [];
-    const possible = node.links && node.links.length > 0 ? node.links : nodes;
-    possible.forEach((test: GraphNode) => {
-      if (test.name && test.name !== node.name) {
-        linkNames.push(test.name);
-      }
-    });
-    if (!node.links || node.links.length === 0) linkNames.push(END_NODE);
+    if (!node.links || node.links.length === 0) {
+      linkNames.push(END_NODE);
+    } else {
+      const possible = node.links;
+      possible.forEach((test: GraphNode) => {
+        if (test.name && test.name !== node.name) {
+          linkNames.push(test.name);
+        }
+      });
+    }
 
     const prompt = PromptTemplate.fromTemplate(`
                 You are to select the next best mode from a list of possible nodes..
