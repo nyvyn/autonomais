@@ -29,7 +29,7 @@ describe("GraphRunner", () => {
   });
 
   it("should process node with tool and single link", async () => {
-    const dummyTool = { name: "dummy", description: "dummy tool" };
+    const dummyTool = { name: "dummy", description: "dummy tool", schema: {}, returnDirect: false, verboseParsingErrors: false, lc_namespace: ["dummy"], _call: async () => "" } as any;
     const nodes: GraphNode[] = [
       {
         name: "start",
@@ -54,7 +54,7 @@ describe("GraphRunner", () => {
   });
 
   it("should process node with tool and multiple links", async () => {
-    const dummyTool = { name: "dummy", description: "dummy tool" };
+    const dummyTool = { name: "dummy", description: "dummy tool", schema: {}, returnDirect: false, verboseParsingErrors: false, lc_namespace: ["dummy"], _call: async () => "" } as any;
     const nodes: GraphNode[] = [
       {
         name: "start",
