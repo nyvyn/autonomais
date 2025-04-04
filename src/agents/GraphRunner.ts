@@ -198,6 +198,14 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
       });
     }
 
+    if (linkNames.length === 1) {
+      const message = new AIMessage("Selected: " + linkNames[0]);
+      logger(message.content as string);
+      return {
+        lastNode: node.name,
+        messages: [message],
+      };
+    }
     const prompt = PromptTemplate.fromTemplate(`
                 You are to select the next best mode from a list of possible nodes..
                 This is the conversation so far: \"\"\"{messages}\"\"\".
