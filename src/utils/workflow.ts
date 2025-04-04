@@ -42,8 +42,7 @@ export function parseWorkflow(
     const node: GraphNode = {
       name: key,
       instructions: prop.instructions,
-      isConditional: prop.conditional || false,
-      isExit: prop.exit || false,
+      links: [],
       tools: selected || [],
     };
     nodes.push(node);
