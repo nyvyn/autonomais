@@ -158,7 +158,7 @@ All nodes are required to have a name (e.g., "hello-world") and instructions.
 
 ### Agent nodes can use tools
 
-Agent (and Exit) nodes may be configured to use tools.
+Agent nodes may be configured to use tools.
 
 ```yaml
 calculate:
@@ -166,13 +166,14 @@ calculate:
    tools: [ "calculator" ]
 ```
 
-### Chaining nodes
+### Linking nodes
 
-Two nodes defined in succession are a chain. That is, no conditional or exit nodes intervene.
+Nodes can be chained, by defining one or more links.
 
 ```yaml
 researcher:
    instructions: "Your role is to reseach AI topics"
+   links: [ "editor" ]
    tools: [ "bing-search" ]
 
 editor:
@@ -180,41 +181,28 @@ editor:
 ```
 
 The first agent is expected to search the web and gather information with search and browser tools.
-The second is also an agent without tools — relying on the LLM exclusively.
+The second is an agent without tools — relying on the LLM exclusively.
 
 ### Exit nodes
 
-Exit nodes are agent nodes that... exit the workflow.
-
-Constraints:
-
-* The last node is always an exit node.
-* Conditional nodes cannot be exit nodes.
-* Therefore, the last node can never be a conditional node.
-
-Note: Exit nodes can use tools, the same as Agent nodes.
+If no links are defined, then the node exits after completion.
 
 ### Conditional nodes
 
-Conditional nodes follow instructions to identify the next best node.
-A common use is to ensure that direction has been provided before executing a chain.
+If more than one link is defined, then the agent chooses the agent by name that most closely
+corresponds to the direction provided by the instructions.
 
 ```yaml
 identify-topic:
   instructions: "If the user has not provided a topic, then ask them too. Otherwise start researching."
-   conditional: true
   links: [ "ask-for-topic", "researcher" ]
 
 ask-for-topic:
   instructions: "Ask the user what topic to research."
-   exit: true
 
 researcher:
   instructions: "Research useful topics on the provided."
-   exit: true # this is optional, as the last node is an exit node by default.
 ```
-
-Note: Conditional nodes cannot use tools, only agent and exit nodes can.
 
 ### Running the graph
 
