@@ -1,16 +1,11 @@
 import { HumanMessage } from "@langchain/core/messages";
 import { FakeListChatModel } from "@langchain/core/utils/testing";
 import { GraphNode } from "../types";
-import {
-  GraphRunner,
-  GraphRunnerConfig,
-  GraphRunnerInput,
-} from "./GraphRunner";
+import { GraphRunner, GraphRunnerInput } from "./GraphRunner";
 
 describe("GraphRunner", () => {
   let fakeLLM: FakeListChatModel;
   let graphRunner: GraphRunner;
-  let config: GraphRunnerConfig;
 
   beforeEach(async () => {
     fakeLLM = new FakeListChatModel({
@@ -20,8 +15,6 @@ describe("GraphRunner", () => {
       {
         name: "start",
         instructions: "Reply with hello",
-        isConditional: false,
-        isExit: false,
       },
     ];
     graphRunner = await GraphRunner.make({ nodes, model: fakeLLM });
