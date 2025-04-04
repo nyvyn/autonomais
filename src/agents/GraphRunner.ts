@@ -196,7 +196,7 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
         linkNames.push(test.name);
       }
     });
-    if (node.links.length === 0) linkNames.push(END_NODE);
+    if (!node.links || node.links.length === 0) linkNames.push(END_NODE);
 
     const prompt = PromptTemplate.fromTemplate(`
                 You are to select the next best mode from a list of possible nodes..
