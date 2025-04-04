@@ -22,7 +22,6 @@ import { END_NODE } from "../utils/variables";
 export type AgentState = {
   lastNode?: string;
   messages: BaseMessage[];
-  state: Record<string, string>;
 };
 
 export interface GraphRunnerConfig extends RunnableConfig {
@@ -132,45 +131,38 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
 
     logger(message.content as string);
 
-    let sharedState = state.state;
-    if (node.state?.length > 0) {
-      const stateUpdatePrompt = PromptTemplate.fromTemplate(
-        `Based on the message from an AI agent to a human, update the following state variables:
-        Message: """{message}"""
-        State variables to update: \`\`\`{scope}\`\`\`
-        
-        Respond with a JSON object containing the updated state variables.`,
-      );
-
-      const update = await stateUpdatePrompt.pipe(model).invoke(
-        {
-          message: message.content as string,
-          scope: JSON.stringify(node.state),
-        },
-        {
-          ...config,
-          runName: `State Update - ${node.name}`,
-        },
-      );
-
-      let stateUpdate: Record<string, string>;
-      try {
-        stateUpdate = JSON.parse(update.content as string);
-      } catch (error) {
-        logger(`Error parsing state update: ${error}`);
-        stateUpdate = {};
-      }
-      sharedState = {
-        ...state.state,
-        ...stateUpdate,
-      };
-    }
-
     return {
       lastNode: node.name,
       messages: [message],
-      state: sharedState,
     };
+  };
+
+  /**
+   * Asynchronously processes a "combined" call to both an agent and a conditional node,
+   * updating and returning the agent's state after execution. The function first processes
+   * the agent logic, then transitions into evaluating the conditional logic using the updated state.
+   *
+   * @param {AgentState} state - The current state of the agent to be processed.
+   * @param {GraphNode} node - The current graph node representing the operation to be executed.
+   * @param {GraphNode[]} nodes - A list of all relevant graph nodes in the process.
+   * @param {BaseChatModel} model - The model instance used for probabilistic or deterministic decision-making within the node operations.
+   * @param {RunnableConfig} [config] - Optional configuration object providing additional settings for execution.
+   * @returns {Promise<AgentState>} A promise that resolves to the updated agent state after processing both the agent and conditional logic.
+   */
+  private static callCombined = async (
+    state: AgentState,
+    node: GraphNode,
+    nodes: GraphNode[],
+    model: BaseChatModel,
+    config?: RunnableConfig,
+  ): Promise<AgentState> => {
+    logger(`Calling combined agent and conditional: ${node.name}`);
+
+    // Run the Agent first
+    const agentState = await GraphRunner.callAgent(state, node, model, config);
+
+    // Pass updated state into Conditional
+    return GraphRunner.callConditional(agentState, node, nodes, model, config);
   };
 
   /**
@@ -204,7 +196,7 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
         linkNames.push(test.name);
       }
     });
-    if (node.isExit) linkNames.push(END_NODE);
+    if (node.links.length === 0) linkNames.push(END_NODE);
 
     const prompt = PromptTemplate.fromTemplate(`
                 You are to select the next best mode from a list of possible nodes..
@@ -232,7 +224,6 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
     return {
       lastNode: node.name,
       messages: [message],
-      state: state.state,
     };
   };
 
@@ -316,21 +307,26 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
 
     // Define the nodes
     nodes.forEach((node) => {
-      if (node.isConditional) {
-        workflow.addNode(
-          node.name!,
-          RunnableLambda.from((state: AgentState, config) =>
-            GraphRunner.callConditional(state, node, nodes, model, config),
-          ),
+      const hasTools = node.tools && node.tools.length > 0;
+      const hasLinks = node.links && node.links.length > 0;
+
+      let runnable: RunnableLambda<AgentState, AgentState>;
+
+      if (hasTools && hasLinks) {
+        runnable = RunnableLambda.from((state, config) =>
+          GraphRunner.callCombined(state, node, nodes, model, config),
+        );
+      } else if (hasTools) {
+        runnable = RunnableLambda.from((state, config) =>
+          GraphRunner.callAgent(state, node, model, config),
         );
       } else {
-        workflow.addNode(
-          node.name!,
-          RunnableLambda.from((state: AgentState, config) =>
-            GraphRunner.callAgent(state, node, model, config),
-          ),
+        runnable = RunnableLambda.from((state, config) =>
+          GraphRunner.callConditional(state, node, nodes, model, config),
         );
       }
+
+      workflow.addNode(node.name!, runnable);
     });
 
     // Define the edges between the nodes
@@ -345,18 +341,15 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
         workflow.addEdge(node.name!, END);
       }
 
-      if (node.isConditional) {
+      if (node.links.length > 0) {
         let mapping: Record<string, string> = {};
 
-        if (node.isExit) {
-          mapping = {
-            ...mapping,
-            [END_NODE]: END,
-          };
-        }
+        const filteredNodes = nodes.filter((test) =>
+          node.links.some((link) => link.name === test.name),
+        );
 
-        // Add all agents as possible next nodes
-        nodes.forEach((test) => {
+        // Add all filtered agents as possible next nodes
+        filteredNodes.forEach((test) => {
           if (test.name && test.name !== node.name) {
             mapping = {
               ...mapping,
@@ -371,14 +364,7 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
           mapping,
         );
       } else {
-        // If not the last node, add the edge to the next node.
-        if (index < nodes.length - 1) {
-          if (node.isExit) {
-            workflow.addEdge(node.name, END);
-          } else {
-            workflow.addEdge(node.name, nodes[index + 1].name!);
-          }
-        }
+        workflow.addEdge(node.name, END);
       }
     });
 
