@@ -316,13 +316,13 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
         runnable = RunnableLambda.from((state, config) =>
           GraphRunner.callCombined(state, node, model, config),
         );
-      } else if (hasTools) {
+      } else if (hasLinks) {
         runnable = RunnableLambda.from((state, config) =>
-          GraphRunner.callAgent(state, node, model, config),
+          GraphRunner.callConditional(state, node, model, config),
         );
       } else {
         runnable = RunnableLambda.from((state, config) =>
-          GraphRunner.callConditional(state, node, model, config),
+          GraphRunner.callAgent(state, node, model, config),
         );
       }
 
@@ -334,11 +334,6 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
       // If this is the first agent, set it as the entry point.
       if (index === 0) {
         workflow.addEdge(START, node.name!);
-      }
-
-      // If this is the last node, set it as the finish point.
-      if (index === nodes.length - 1) {
-        workflow.addEdge(node.name!, END);
       }
 
       if (node.links && node.links.length > 0) {

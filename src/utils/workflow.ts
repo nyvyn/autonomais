@@ -1,11 +1,11 @@
 import { BaseMessage } from "@langchain/core/messages";
 import { StructuredTool } from "@langchain/core/tools";
-import { ChatOpenAI } from "@langchain/openai";
+import { ChatOpenAI, ClientOptions } from "@langchain/openai";
 import { parse } from "yaml";
 import { GraphRunner } from "../agents";
 import { GraphNode } from "../types";
 import { logger } from "./logger";
-import { GPT4_TEXT } from "./variables";
+import { GTP_MODEL } from "./variables";
 
 /**
  *  Parses a workflow from a source string and returns an array of GraphNode objects.
@@ -80,15 +80,17 @@ export async function runWorkflow(
   messages: BaseMessage[],
 ): Promise<string> {
   const openAiApiKey = process.env.OPENAI_API_KEY;
-  if (!Boolean(openAiApiKey)) {
-    throw new Error("OpenAI API Key not set.");
-  }
+  const openAiApiBase = process.env.OPENAI_API_BASE;
+
+  const config: ClientOptions = {
+    apiKey: openAiApiKey,
+    baseURL: openAiApiBase,
+  };
 
   const model = new ChatOpenAI({
-    openAIApiKey: openAiApiKey,
-    modelName: GPT4_TEXT,
+    configuration: config,
+    model: GTP_MODEL,
     temperature: 0,
-    topP: 0,
     streaming: false,
     maxRetries: 2,
   });
