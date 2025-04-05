@@ -6,37 +6,34 @@ game-state-decision:
     After a challenge, if an outcome needs to be determined based on the player's response, route to `Outcome Evaluation`.
     If the player is engaged in furthering the narrative through decisions, route to `Narrative Progression`. 
     If the adventure has reached its conclusion and needs to provide closure, route to `End Adventure`."
-  conditional: true
+  links: [ "start-adventure", "dynamic-exploration", "challenge-encounter", "outcome-evaluation",
+           "narrative-progression", "end-adventure" ]
 
 start-adventure:
   instructions: "In about 50 words, describe an intriguing environment that hints 
     at numerous possibilities for exploration. Ask the player to choose a direction 
     or action without specifying exact options, encouraging imagination and personal choice."
-  exit: true
 
 dynamic-exploration:
   instructions: "Based on the previous character decisions, in about 50 words, describe a scenario 
     that aligns with the player's chosen approach, such as uncovering a hidden path, 
     encountering a mysterious character, or solving an environmental puzzle."
-  exit: true
 
 challenge-encounter:
   instructions: "In about 50 words, present a new challenge and ask for the player's approach, 
     allowing them to actively shape the narrative."
-  exit: true
 
 outcome-evaluation:
   instructions: "Assess the player's response to the challenge and route to an appropriate node 
     based on success, failure, or an unexpected outcome, leading to various narrative branches."
-  conditional: true
+  links: [ "game-state-decision", "start-adventure", "dynamic-exploration", "challenge-encounter",
+           "narrative-progression", "end-adventure" ]
 
 narrative-progression:
   instructions: "In about 50 words, develop the story based on the accumulated choices and outcomes, 
     leading to new decision points, challenges, or revelations. 
     Prompt the player for more input to keep them engaged."
-  exit: true
 
 end-adventure:
   instructions: "In about 80 words, provide closure based on the cumulative decisions 
     and actions of the player throughout the game, concluding their adventure."
-  exit: true # setting this is optional, the last node is always an exit node
