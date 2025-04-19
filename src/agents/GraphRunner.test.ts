@@ -43,7 +43,7 @@ describe("GraphRunner", () => {
       }
     ];
     fakeLLM = new FakeListChatModel({
-      responses: ["Agent response", "option"],
+      responses: ["Agent response", "Selected: option"],
     });
     fakeLLM.bindTools = () => fakeLLM;
     const runner = await GraphRunner.make({ nodes, model: fakeLLM });
