@@ -126,9 +126,11 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
     if (typeof completion === "string") {
       message = new AIMessage(completion);
     } else {
-      const lastMessage = completion.messages?.[completion.messages.length - 1];
+      const lastMessage =
+        completion.content ??
+        completion.messages?.[completion.messages.length - 1].content;
       message = lastMessage
-        ? new AIMessage(lastMessage.content)
+        ? new AIMessage(lastMessage)
         : new AIMessage("No response from AI.");
     }
 
@@ -221,7 +223,7 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
       const raw =
         typeof completion === "string"
           ? completion
-          : completion.content ?? "";
+          : (completion.content ?? "");
       message = raw
         ? new AIMessage("Selected: " + raw)
         : new AIMessage("No response from AI.");

@@ -16,7 +16,7 @@
     "demo": "ts-node src/autonomais.ts ./examples/calculator.yaml",
     "dev": "ts-node src/autonomais.ts",
     "semantic-release": "semantic-release",
-    "test": "node node_modules/jest/bin/jest.js",
+    "test": "jest",
     "update scripts": "npx npm-check-updates -u"
   },
   "dependencies": {
