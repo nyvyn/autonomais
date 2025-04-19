@@ -94,7 +94,7 @@ function colorize(text: string): string {
  *  @returns {StructuredTool[]} An array of tools.
  */
 function makeTools(): StructuredTool[] {
-  const tools: StructuredTool[] = [];
+  const tools: StructuredTool<any>[] = [];
 
   tools.push(new Calculator());
 
