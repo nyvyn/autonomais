@@ -4,10 +4,9 @@ import { BingSerpAPI } from "@langchain/community/tools/bingserpapi";
 import { Calculator } from "@langchain/community/tools/calculator";
 import { AIMessage, BaseMessage, HumanMessage } from "@langchain/core/messages";
 import { StructuredTool } from "@langchain/core/tools";
-import * as console from "node:console";
 import * as fs from "node:fs";
 import * as repl from "node:repl";
-import * as yargs from "yargs";
+import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import { enableVerboseLogging, parseWorkflow, runWorkflow } from "./index";
 
@@ -113,8 +112,9 @@ function makeTools(): StructuredTool[] {
  *
  * @returns {Promise<void>}
  */
-async function main(): Promise<void> {
+export async function main(): Promise<void> {
   await yargs(hideBin(process.argv))
+    .exitProcess(false)
     .usage("Usage: $0 <workflow> [prompt]")
     .command({
       command: ["source", "$0"],
@@ -137,6 +137,8 @@ async function main(): Promise<void> {
     .parse();
 }
 
-main().catch((error) => {
-  console.error(`An error occurred: ${error.message}`);
-});
+if (require.main === module) {
+  main().catch((error) => {
+    console.error(`An error occurred: ${error.message}`);
+  });
+}

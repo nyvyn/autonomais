@@ -1,32 +1,33 @@
+import { MockInstance } from "vitest";
+import { main } from "./autonomais";
+
 describe("autonomais cli", () => {
   let originalArgv: string[];
-  let processExitSpy: jest.SpyInstance<never, [code?: number]>;
+  let processExitSpy: MockInstance<NodeJS.Process["exit"]>;
 
   beforeEach(() => {
-    jest.resetModules();
+    vi.resetModules();
     originalArgv = process.argv;
-    processExitSpy = jest.spyOn(process, "exit").mockImplementation();
+    processExitSpy = vi.spyOn(process, "exit").mockImplementation(undefined);
     // Remove all cached modules.
     // Clear the cache before running each command,
     // otherwise you will see the same results from the command
     // run in your first test in later tests.
-    jest.resetModules();
+    vi.resetModules();
 
     // Each test overwrites process arguments so store the original arguments
     originalArgv = process.argv;
-    processExitSpy = jest.spyOn(process, "exit").mockImplementation();
+    processExitSpy = vi.spyOn(process, "exit").mockImplementation(undefined);
   });
 
   afterEach(() => {
-    jest.resetAllMocks();
-
     // Set process arguments back to the original value
     process.argv = originalArgv;
     processExitSpy.mockRestore();
   });
 
   it("should run help command", async () => {
-    const consoleSpy = jest.spyOn(console, "log");
+    const consoleSpy = vi.spyOn(console, "log");
 
     await runCommand("--help");
 
@@ -48,6 +49,5 @@ async function runCommand(...args: string[]) {
     ...args,
   ];
 
-  // Require the yargs CLI script
-  return require("./autonomais");
+  return main();
 }
