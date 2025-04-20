@@ -1,4 +1,5 @@
 import { MockInstance } from "vitest";
+import { main } from "./autonomais";
 
 describe("autonomais cli", () => {
   let originalArgv: string[];
@@ -48,6 +49,5 @@ async function runCommand(...args: string[]) {
     ...args,
   ];
 
-  // Require the yargs CLI script
-  return require("./autonomais");
+  return main();
 }
