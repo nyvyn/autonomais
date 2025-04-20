@@ -115,6 +115,7 @@ function makeTools(): StructuredTool[] {
  */
 export async function main(): Promise<void> {
   await yargs(hideBin(process.argv))
+    .exitProcess(false)
     .usage("Usage: $0 <workflow> [prompt]")
     .command({
       command: ["source", "$0"],
