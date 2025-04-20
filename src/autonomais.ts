@@ -7,7 +7,7 @@ import { StructuredTool } from "@langchain/core/tools";
 import * as console from "node:console";
 import * as fs from "node:fs";
 import * as repl from "node:repl";
-import * as yargs from "yargs";
+import yargs from "yargs/yargs";
 import { hideBin } from "yargs/helpers";
 import { enableVerboseLogging, parseWorkflow, runWorkflow } from "./index";
 
