@@ -1,4 +1,4 @@
-import { BaseChatModel } from "@langchain/core/dist/language_models/chat_models";
+import { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import { AIMessage, BaseMessage, HumanMessage } from "@langchain/core/messages";
 import { PromptTemplate } from "@langchain/core/prompts";
 import {
@@ -223,7 +223,7 @@ export class GraphRunner extends Runnable<GraphRunnerInput, GraphRunnerOutput> {
       const raw =
         typeof completion === "string"
           ? completion
-          : (completion.content ?? "");
+          : (completion?.content ?? "");
       message = raw
         ? new AIMessage("Selected: " + raw)
         : new AIMessage("No response from AI.");
