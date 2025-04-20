@@ -113,7 +113,7 @@ function makeTools(): StructuredTool[] {
  *
  * @returns {Promise<void>}
  */
-async function main(): Promise<void> {
+export async function main(): Promise<void> {
   await yargs(hideBin(process.argv))
     .usage("Usage: $0 <workflow> [prompt]")
     .command({
@@ -137,6 +137,8 @@ async function main(): Promise<void> {
     .parse();
 }
 
-main().catch((error) => {
-  console.error(`An error occurred: ${error.message}`);
-});
+if (require.main === module) {
+  main().catch((error) => {
+    console.error(`An error occurred: ${error.message}`);
+  });
+}
